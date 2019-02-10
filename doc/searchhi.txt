@@ -1,0 +1,302 @@
+*searchhi.txt*	Plugin for highlighting the current search result
+*searchhi*
+
+==============================================================================
+CONTENTS                                                   *searchhi-contents*
+
+    1. Intro ................................ |searchhi-intro|
+        1.1. Credits ........................ |searchhi-credits|
+    2. Features ............................. |searchhi-features|
+    3. Quick start .......................... |searchhi-quick-start|
+    4. Config ............................... |searchhi-config|
+        4.1. Highlight ...................... |searchhi-config-highlight|
+        4.2. Autocommands ................... |searchhi-config-autocmd-events|
+        4.3. Misc ........................... |searchhi-config-misc|
+    5. Mappings ............................. |searchhi-mappings|
+        5.1. Normal mode .................... |searchhi-n-mappings|
+        5.2. Visual mode .................... |searchhi-v-mappings|
+
+==============================================================================
+1. Intro                                                      *searchhi-intro*
+
+This plugin does primarily one thing: highlight the current search result (the
+one under the cursor).
+
+------------------------------------------------------------------------------
+1.1. Credits                                                *searchhi-credits*
+
+This plugin uses code from the following sources:
+
+Plugin: {vim-searchant}{1}
+Author: Tim Schumacher <tim@timakro.de>
+
+    - |vim-searchhi| would not have existed without {vim-searchant}{1}. It
+      uses the same basic implementation for highlighting the current search
+      result.
+
+                                  {1} https://github.com/timakro/vim-searchant
+
+==============================================================================
+2. Features                                                *searchhi-features*
+
+    - Smooth integration with standard search as well as other
+      search-enhancing plugins (e.g. {vim-anzu}{2}, {vim-asterisk}{3}).
+
+    - Behaves appropriately in Visual mode.
+
+    - Autocommands are provided and executed when highlighting is turned on
+      and off.
+
+    - Stray highlights are removed from inactive windows and tabs.
+
+    - Folds can be automatically opened if they contain the current search
+      result
+
+                                {2} https://github.com/osyo-manga/vim-anzu
+                                {3} https://github.com/haya14busa/vim-asterisk
+
+
+==============================================================================
+3. Quick start                                           *searchhi-quickstart*
+
+>
+    nmap / <Plug>(searchhi-/)
+    nmap ? <Plug>(searchhi-?)
+    nmap n <Plug>(searchhi-n)
+    nmap N <Plug>(searchhi-N)
+    nmap * <Plug>(searchhi-*)
+    nmap # <Plug>(searchhi-#)
+    nmap g* <Plug>(searchhi-g*)
+    nmap g# <Plug>(searchhi-g#)
+    nmap <silent> <C-L> <Plug>(searchhi-off-all)
+
+    vmap / <Plug>(searchhi-v-/)
+    vmap ? <Plug>(searchhi-v-?)
+    vmap n <Plug>(searchhi-v-n)
+    vmap N <Plug>(searchhi-v-N)
+    vmap * <Plug>(searchhi-v-*)
+    vmap # <Plug>(searchhi-v-#)
+    vmap g* <Plug>(searchhi-v-g*)
+    vmap g# <Plug>(searchhi-v-g#)
+    vmap <silent> <C-L> <Plug>(searchhi-v-off-all)
+<
+
+Integration with {vim-anzu}{2}:
+>
+    let g:searchhi_autocmds_enabled = 1
+    augroup searchhi
+        autocmd!
+        autocmd! User SearchHiOn AnzuUpdateSearchStatusOutput
+        autocmd! User SearchHiOff AnzuClearSearchStatus | echo ''
+    augroup END
+<
+
+Integration with {vim-asterisk}{3}:
+>
+    nmap * <Plug>(asterisk-*)<Plug>(searchhi-update)
+    nmap # <Plug>(asterisk-#)<Plug>(searchhi-update)
+    nmap g* <Plug>(asterisk-g*)<Plug>(searchhi-update)
+    nmap g# <Plug>(asterisk-g#)<Plug>(searchhi-update)
+
+    nmap z* <Plug>(asterisk-z*)<Plug>(searchhi-update-stay-forward)
+    nmap z# <Plug>(asterisk-z#)<Plug>(searchhi-update-stay-backward)
+    nmap zg* <Plug>(asterisk-gz*)<Plug>(searchhi-update-stay-forward)
+    nmap zg# <Plug>(asterisk-gz#)<Plug>(searchhi-update-stay-backward)
+
+    " These do not use the visual variant (`searchhi-v-update`) because these
+    " vim-asterisk commands only use the selected text as the search term, so
+    " there is no need to preserve the visual selection
+    vmap * <Plug>(asterisk-*)<Plug>(searchhi-update)
+    vmap # <Plug>(asterisk-#)<Plug>(searchhi-update)
+    vmap g* <Plug>(asterisk-g*)<Plug>(searchhi-update)
+    vmap g# <Plug>(asterisk-g#)<Plug>(searchhi-update)
+
+    " These all use the backward variant because the cursor is always at or in
+    " front of the start of the visual selection, so we need to search
+    " backwards to get to the start position
+    vmap z* <Plug>(asterisk-z*)<Plug>(searchhi-update-stay-backward)
+    vmap z# <Plug>(asterisk-z#)<Plug>(searchhi-update-stay-backward)
+    vmap zg* <Plug>(asterisk-zg*)<Plug>(searchhi-update-stay-backward)
+    vmap zg# <Plug>(asterisk-zg#)<Plug>(searchhi-update-stay-backward)
+<
+
+Integration with "stay star" motions from {vim-asterisk}{3}:
+>
+    nmap * <Plug>(asterisk-z*)<Plug>(searchhi-update-stay-forward)
+    nmap # <Plug>(asterisk-z#)<Plug>(searchhi-update-stay-backward)
+    nmap g* <Plug>(asterisk-gz*)<Plug>(searchhi-update-stay-forward)
+    nmap g# <Plug>(asterisk-gz#)<Plug>(searchhi-update-stay-backward)
+
+    " These all use the backward variant because the cursor is always at or in
+    " front of the start of the visual selection, so we need to search
+    " backwards to get to the start position
+    vmap * <Plug>(asterisk-z*)<Plug>(searchhi-update-stay-backward)
+    vmap # <Plug>(asterisk-z#)<Plug>(searchhi-update-stay-backward)
+    vmap g* <Plug>(asterisk-zg*)<Plug>(searchhi-update-stay-backward)
+    vmap g# <Plug>(asterisk-zg#)<Plug>(searchhi-update-stay-backward)
+<
+
+==============================================================================
+4. Config                                                    *searchhi-config*
+
+------------------------------------------------------------------------------
+4.1. Highlight                                     *searchhi-config-highlight*
+
+*hl-CurrentSearch*   Used to highlight current search result. Example:
+>
+    highlight CurrentSearch
+        \ cterm=reverse,bold ctermfg=108 ctermbg=235
+        \ gui=reverse,bold guifg=#8ec07c guibg=#282828
+<
+
+By default,|hl-CurrentSearch| is linked to |hl-Incsearch|, which works nicely
+if |hl-Incsearch| and |hl-Search| are distinguishable.
+
+------------------------------------------------------------------------------
+4.2. Autocommands                             *searchhi-config-autocmd-events*
+
+Name           Trigger ~
+*SearchHiOn*     When highlighting is turned on
+*SearchHiOff*    When highlighting is turned off
+
+*g:searchhi_autocmds_enabled*
+    Whether the autocommands above are enabled
+    `---`
+    Type: |Number|
+    Default: `0`
+
+Below is an example that blinks the cursor when search highlighting is turned
+on, making the cursor easier to find. {vim-anzu}{2} is also used to echo the
+search count.
+>
+    let g:searchhi_autocmds_enabled = 1
+
+    augroup searchhi
+        autocmd!
+
+        autocmd! User SearchHiOn
+            \ set guicursor=
+                \c-sm:block,i-ci-ve:ver25,r-cr-o:hor20,
+                \n-v:block-blinkwait20-blinkon20-blinkoff20 |
+            \ AnzuUpdateSearchStatusOutput
+
+        autocmd! User SearchHiOff
+            \ set guicursor& | AnzuClearSearchStatus | echo ''
+    augroup END
+<
+
+------------------------------------------------------------------------------
+4.3. Misc                                               *searchhi-config-misc*
+
+*g:searchhi_open_folds*
+    Whether folds should be automatically opened if they contain the current
+    search result
+    `---`
+    Type: |Number|
+    Default: `0`
+
+*g:searchhi_visual_maps_enabled*
+    Whether <Plug> mappings should be created for Visual mode functions
+    `---`
+    Type: |Number|
+    Default: `1`
+
+==============================================================================
+5. Mappings                                                *searchhi-mappings*
+
+------------------------------------------------------------------------------
+5.1. Normal mode                                         *searchhi-n-mappings*
+
+<Plug> mappings that can replace their respective normal mode commands:
+
+    *<Plug>(searchhi-/)*
+    *<Plug>(searchhi-?)*
+    *<Plug>(searchhi-n)*
+    *<Plug>(searchhi-N)*
+    *<Plug>(searchhi-star)*  -> <Plug>(searchhi-*)
+    *<Plug>(searchhi-#)*
+    *<Plug>(searchhi-gstar)* -> <Plug>(searchhi-g*)
+    *<Plug>(searchhi-g#)*
+
+General use <Plug> mappings:
+
+    *<Plug>(searchhi-off-all)*
+        Clears all search highlighting
+
+Low-level <Plug> mappings (can be used to integrate with other plugins):
+
+    *<Plug>(searchhi-update)*
+        Clears the old highlight, then highlights the one under the cursor
+
+    *<Plug>(searchhi-update-stay-forward)*
+        This was specifically made to be compatible with "stay star" motions
+        from {vim-asterisk}{3}, though it should also work for general cases
+        as well. This is called a "stay" motion because it correctly handles
+        the case where the cursor doesn't jump to the position of the first
+        search result.
+
+        In order to highlight the current search result, the start position
+        (i.e. the line and column) of it must be known. Since the cursor
+        doesn't move in this case, this <Plug> mapping is responsible for
+        finding that start position, and it does this by calling |searchpos()|
+        with the search pattern currently being used. This <Plug> mapping
+        performs the search in the forward direction.
+
+        Note: if the cursor is currently on a word character (|/\w|), then it
+        actually moves backwards instead. This is fairly convenient and
+        matches the behavior of {vim-asterisk}{3}.
+
+    *<Plug>(searchhi-update-stay-backward)*
+        Similar to |searchhi-update-stay-forward|, but searches for the start
+        position of the current search result in the backwards direction.
+
+        Note: when searching with the selection in visual mode (e.g. "visual
+        star" motions in {vim-asterisk}{3}), this should be used because the
+        start of the visual selection is always behind or under the cursor.
+
+    *<Plug>(searchhi-on)*
+        Highlights the search result under the cursor if it exists.
+
+        Note: only one search result should be highlighted at a time, so
+        existing highlights should always be cleared before a new one is
+        added.
+
+    *<Plug>(searchhi-off)*
+        Clears the highlight on the current search result, but not the
+        highlights on the rest of them.
+
+        Note: this doesn't mean that the current search result will not be
+        highlighted at all. Instead, it will be highlighted with the same
+        highlight group as the other search results (i.e. |hl-Search|).
+
+    *<Plug>(searchhi-pre-search)*
+        This is called before the |/| and |?| search commands. The implementation
+        relies on setting a custom command-line mapping for <CR>, which
+        triggers search highlighting to be turned on after the user submits
+        the search query.
+
+------------------------------------------------------------------------------
+5.2. Visual mode                                         *searchhi-v-mappings*
+
+These are the same as the normal mode mappings, but they preserve the visual
+selection:
+
+    *<Plug>(searchhi-v-/)*
+    *<Plug>(searchhi-v-?)*
+    *<Plug>(searchhi-v-n)*
+    *<Plug>(searchhi-v-N)*
+    *<Plug>(searchhi-v-star)*  -> <Plug>(searchhi-v-*)
+    *<Plug>(searchhi-v-#)*
+    *<Plug>(searchhi-v-gstar)* -> <Plug>(searchhi-v-g*)
+    *<Plug>(searchhi-v-g#)*
+
+    *<Plug>(searchhi-v-off-all)*
+
+    *<Plug>(searchhi-v-update)*
+    *<Plug>(searchhi-v-update-stay-forward)*
+    *<Plug>(searchhi-v-update-stay-backward)*
+    *<Plug>(searchhi-v-on)*
+    *<Plug>(searchhi-v-off)*
+    *<Plug>(searchhi-v-pre-search)*
+
+ vim:tw=78:sw=4:ft=help:norl:
