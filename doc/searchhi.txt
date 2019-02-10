@@ -30,8 +30,8 @@ This plugin uses code from the following sources:
 Plugin: {vim-searchant}{1}
 Author: Tim Schumacher <tim@timakro.de>
 
-    - |vim-searchhi| would not have existed without {vim-searchant}{1}. It
-      uses the same basic implementation for highlighting the current search
+    - |searchhi| would not have existed without {vim-searchant}{1}. It uses
+      the same basic implementation for highlighting the current search
       result.
 
                                   {1} https://github.com/timakro/vim-searchant
@@ -57,7 +57,7 @@ Author: Tim Schumacher <tim@timakro.de>
 
 
 ==============================================================================
-3. Quick start                                           *searchhi-quickstart*
+3. Quick start                                          *searchhi-quick-start*
 
 >
     nmap / <Plug>(searchhi-/)
