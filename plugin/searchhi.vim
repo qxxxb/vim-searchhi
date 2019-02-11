@@ -8,8 +8,7 @@ if !exists('g:searchhi_visual_maps_enabled')
 endif
 
 if !exists('g:searchhi_open_folds')
-    " The default vim behavior is not to open folds when searching
-    let g:searchhi_open_folds = 0
+    let g:searchhi_open_folds = 1
 endif
 
 if !exists('g:searchhi_autocmds_enabled')

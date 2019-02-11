@@ -121,14 +121,6 @@ augroup searchhi
 augroup END
 ```
 
-### Open folds
-
-Folds containing the current search result can be automatically opened.
-
-```vim
-let g:searchhi_open_folds = 1
-```
-
 [vim-searchant]: https://github.com/timakro/vim-searchant
 [vim-anzu]: https://github.com/osyo-manga/vim-anzu
 [vim-asterisk]: https://github.com/haya14busa/vim-asterisk

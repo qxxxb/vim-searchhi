@@ -193,7 +193,7 @@ search count.
     search result
     `---`
     Type: |Number|
-    Default: `0`
+    Default: `1`
 
 *g:searchhi_visual_maps_enabled*
     Whether <Plug> mappings should be created for Visual mode functions
