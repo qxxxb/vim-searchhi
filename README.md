@@ -48,8 +48,8 @@ Integration with [vim-anzu]:
 let g:searchhi_autocmds_enabled = 1
 augroup searchhi
   autocmd!
-  autocmd! User SearchHiOn AnzuUpdateSearchStatusOutput
-  autocmd! User SearchHiOff AnzuClearSearchStatus | echo ''
+  autocmd User SearchHiOn AnzuUpdateSearchStatusOutput
+  autocmd User SearchHiOff AnzuClearSearchStatus | echo ''
 augroup END
 ```
 
@@ -111,13 +111,13 @@ let g:searchhi_autocmds_enabled = 1
 augroup searchhi
     autocmd!
 
-    autocmd! User SearchHiOn
+    autocmd User SearchHiOn
         \ set guicursor=
             \c-sm:block,i-ci-ve:ver25,r-cr-o:hor20,
             \n-v:block-blinkwait20-blinkon20-blinkoff20 |
         \ AnzuUpdateSearchStatusOutput
 
-    autocmd! User SearchHiOff set guicursor& | AnzuClearSearchStatus | echo ''
+    autocmd User SearchHiOff set guicursor& | AnzuClearSearchStatus | echo ''
 augroup END
 ```
 
