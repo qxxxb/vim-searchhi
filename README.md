@@ -1,6 +1,6 @@
 # vim-searchhi
 
-Highlight the current search result (the one under the cursor).
+Highlight the current search result different than the others.
 
 ![Demo gif](https://i.imgur.com/lkRaJkH.gif)
 

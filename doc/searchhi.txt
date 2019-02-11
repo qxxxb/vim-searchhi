@@ -20,7 +20,7 @@ CONTENTS                                                   *searchhi-contents*
 1. Intro                                                      *searchhi-intro*
 
 This plugin does primarily one thing: highlight the current search result (the
-one under the cursor).
+one under the cursor) different than the others.
 
 ------------------------------------------------------------------------------
 1.1. Credits                                                *searchhi-credits*
