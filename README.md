@@ -1,6 +1,7 @@
 # vim-searchhi
 
-Highlight the current search result different than the others.
+Highlight the current search result in a different style than the other search
+results.
 
 ![Demo gif](https://i.imgur.com/lkRaJkH.gif)
 
