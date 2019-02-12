@@ -15,8 +15,8 @@ basic implementation for highlighting the current search result.
 - Smooth integration with standard search as well as other search-enhancing
   plugins (e.g. [vim-anzu], [vim-asterisk]).
 - Behaves appropriately in Visual mode.
+- Highlighting is toggled predictably when switching buffers and windows.
 - Autocommands are provided and executed when highlighting is turned on and off.
-- Stray highlights are removed from inactive windows and tabs.
 
 ## Quick start
 
@@ -127,7 +127,7 @@ Highlighting for the current search result can automatically be turned off with
 custom autocommands. Example:
 
 ```vim
-let g:searchhi_off_events = 'CursorMoved,InsertEnter,WinLeave'
+let g:searchhi_off_events = 'CursorMoved,InsertEnter'
 ```
 
 [vim-searchant]: https://github.com/timakro/vim-searchant

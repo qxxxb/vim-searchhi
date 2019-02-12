@@ -15,6 +15,10 @@ if !exists('g:searchhi_autocmds_enabled')
     let g:searchhi_autocmds_enabled = 0
 endif
 
+if !exists('g:searchhi_auto_toggle')
+    let g:searchhi_auto_toggle = 1
+endif
+
 if !exists('g:searchhi_off_events')
     let g:searchhi_off_events = ''
 endif

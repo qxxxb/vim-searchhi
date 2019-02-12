@@ -45,6 +45,8 @@ function! searchhi#on(expect_visual, ...) range
         let g:searchhi_match = matchadd("CurrentSearch", pattern)
         let g:searchhi_match_window = win_getid()
         let g:searchhi_match_buffer = bufnr('%')
+        let g:searchhi_match_line = start_line
+        let g:searchhi_match_column = start_column
 
         if g:searchhi_autocmds_enabled
             doautocmd <nomodeline> User SearchHiOn
@@ -64,11 +66,16 @@ function! searchhi#on(expect_visual, ...) range
         augroup searchhi_auto_toggle
             autocmd!
 
-            autocmd BufEnter * call s:on_buf_enter()
+            if g:searchhi_auto_toggle
+                autocmd WinEnter,BufEnter * call s:on_enter()
+                autocmd WinLeave,BufLeave * call s:on_leave()
+            endif
 
             if g:searchhi_off_events != ''
-                execute 'autocmd ' . g:searchhi_off_events .
-                    \ ' * call searchhi#off(0)'
+                " `autocmd!` to replace the autocmds above
+                execute 'autocmd! ' . g:searchhi_off_events .
+                    \ ' * let is_visual = s:is_visual() | '.
+                    \ 'call searchhi#off(is_visual, is_visual)'
             endif
         augroup END
     endif
@@ -76,21 +83,35 @@ function! searchhi#on(expect_visual, ...) range
     call s:restore_visual_maybe(a:expect_visual, is_visual)
 endfunction
 
-function! s:on_buf_enter()
-    " `match()` highlights occurrences in the current window. However, we want
-    " it to only highlight occurrences in the current buffer
-    "
-    " bufnr('%') is the number of the current buffer
+function! s:on_enter()
     if bufnr('%') == g:searchhi_match_buffer
-        call searchhi#on(0)
-    else
-        call searchhi#off(0, 0, 1)
+        " Switching windows when the buffers are the same should preserve the
+        " visual selection
+        "
+        " Since this function is called from an autocmd, we need to determine
+        " ourselves if we're in visual mode or not.
+        "
+        " The line and colum numbers must be provided so that highlighting
+        " will still work if the cursor is not in the same position.
+        let is_visual = s:is_visual()
+        call searchhi#on(
+            \ is_visual,
+            \ is_visual,
+            \ g:searchhi_match_line,
+            \ g:searchhi_match_column
+        \ )
     endif
+endfunction
+
+function! s:on_leave()
+    let is_visual = s:is_visual()
+    " the `1` is for `from_auto_toggle`
+    call searchhi#off(is_visual, is_visual, 1)
 endfunction
 
 function! searchhi#off(expect_visual, ...) range
     let is_visual = get(a:, 1, 0)
-    let preserve_auto_toggle = get(a:, 2, 1)
+    let from_auto_toggle = get(a:, 2, 0)
 
     if exists('g:searchhi_match') && !s:in_cmdwin()
         let original_window = win_getid()
@@ -131,10 +152,15 @@ function! searchhi#off(expect_visual, ...) range
             let is_visual = 0
         endif
 
-        if !preserve_auto_toggle
+        if !from_auto_toggle
             augroup searchhi_auto_toggle
                 autocmd!
             augroup END
+
+            unlet g:searchhi_match_window
+            unlet g:searchhi_match_buffer
+            unlet g:searchhi_match_line
+            unlet g:searchhi_match_column
         endif
 
         if g:searchhi_autocmds_enabled
@@ -283,6 +309,12 @@ endfunction
 
 function! s:in_cmdwin()
     return bufnr('%') == '[Command Line]'
+endfunction
+
+function! s:is_visual()
+    " `=~#` is if regexp matches (case sensitive)
+    " `mode(1)` returns the full name of the mode
+    return mode(1) =~# "[vV\<C-v>]"
 endfunction
 
 " }}}
