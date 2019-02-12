@@ -63,8 +63,8 @@ nmap g# <Plug>(asterisk-g#)<Plug>(searchhi-update)
 
 nmap z* <Plug>(asterisk-z*)<Plug>(searchhi-update-stay-forward)
 nmap z# <Plug>(asterisk-z#)<Plug>(searchhi-update-stay-backward)
-nmap zg* <Plug>(asterisk-gz*)<Plug>(searchhi-update-stay-forward)
-nmap zg# <Plug>(asterisk-gz#)<Plug>(searchhi-update-stay-backward)
+nmap gz* <Plug>(asterisk-gz*)<Plug>(searchhi-update-stay-forward)
+nmap gz# <Plug>(asterisk-gz#)<Plug>(searchhi-update-stay-backward)
 
 " These do not use the visual variant (`searchhi-v-update`) because these
 " vim-asterisk commands only use the selected text as the search term, so there
@@ -79,8 +79,8 @@ vmap g# <Plug>(asterisk-g#)<Plug>(searchhi-update)
 " get to the start position
 vmap z* <Plug>(asterisk-z*)<Plug>(searchhi-update-stay-backward)
 vmap z# <Plug>(asterisk-z#)<Plug>(searchhi-update-stay-backward)
-vmap zg* <Plug>(asterisk-zg*)<Plug>(searchhi-update-stay-backward)
-vmap zg# <Plug>(asterisk-zg#)<Plug>(searchhi-update-stay-backward)
+vmap gz* <Plug>(asterisk-gz*)<Plug>(searchhi-update-stay-backward)
+vmap gz# <Plug>(asterisk-gz#)<Plug>(searchhi-update-stay-backward)
 ```
 
 ## Customization
