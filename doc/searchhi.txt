@@ -47,6 +47,9 @@ Author: Tim Schumacher <tim@timakro.de>
     - Autocommands are provided and executed when highlighting is turned on
       and off.
 
+    - Highlighting for the current search result can automatically be turned
+      off with custom autocommands.
+
     - Stray highlights are removed from inactive windows and tabs.
 
     - Folds can be automatically opened if they contain the current search
@@ -118,22 +121,6 @@ Integration with {vim-asterisk}{3}:
     vmap z# <Plug>(asterisk-z#)<Plug>(searchhi-update-stay-backward)
     vmap gz* <Plug>(asterisk-gz*)<Plug>(searchhi-update-stay-backward)
     vmap gz# <Plug>(asterisk-gz#)<Plug>(searchhi-update-stay-backward)
-<
-
-Integration with "stay star" motions from {vim-asterisk}{3}:
->
-    nmap * <Plug>(asterisk-z*)<Plug>(searchhi-update-stay-forward)
-    nmap # <Plug>(asterisk-z#)<Plug>(searchhi-update-stay-backward)
-    nmap g* <Plug>(asterisk-gz*)<Plug>(searchhi-update-stay-forward)
-    nmap g# <Plug>(asterisk-gz#)<Plug>(searchhi-update-stay-backward)
-
-    " These all use the backward variant because the cursor is always at or in
-    " front of the start of the visual selection, so we need to search
-    " backwards to get to the start position
-    vmap * <Plug>(asterisk-z*)<Plug>(searchhi-update-stay-backward)
-    vmap # <Plug>(asterisk-z#)<Plug>(searchhi-update-stay-backward)
-    vmap g* <Plug>(asterisk-gz*)<Plug>(searchhi-update-stay-backward)
-    vmap g# <Plug>(asterisk-gz#)<Plug>(searchhi-update-stay-backward)
 <
 
 ==============================================================================
@@ -209,7 +196,7 @@ search count.
     Default: `''`
     Example:
 >
-    let g:searchhi_off_events = 'CursorMoved,InsertEnter'
+    let g:searchhi_off_events = 'CursorMoved,InsertEnter,WinLeave'
 <
 
 ==============================================================================

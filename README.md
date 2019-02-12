@@ -121,6 +121,15 @@ augroup searchhi
 augroup END
 ```
 
+### Off events
+
+Highlighting for the current search result can automatically be turned off with
+custom autocommands. Example:
+
+```vim
+let g:searchhi_off_events = 'CursorMoved,InsertEnter,WinLeave'
+```
+
 [vim-searchant]: https://github.com/timakro/vim-searchant
 [vim-anzu]: https://github.com/osyo-manga/vim-anzu
 [vim-asterisk]: https://github.com/haya14busa/vim-asterisk
