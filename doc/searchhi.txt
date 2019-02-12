@@ -201,6 +201,17 @@ search count.
     Type: |Number|
     Default: `1`
 
+*g:searchhi_off_events*
+    |autocmd-events| separated by commas that automatically turn off
+    highlighting for the current search result
+    `---`
+    Type: |String|
+    Default: `''`
+    Example:
+>
+    let g:searchhi_off_events = 'CursorMoved,InsertEnter'
+<
+
 ==============================================================================
 5. Mappings                                                *searchhi-mappings*
 
