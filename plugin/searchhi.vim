@@ -15,6 +15,10 @@ if !exists('g:searchhi_autocmds_enabled')
     let g:searchhi_autocmds_enabled = 0
 endif
 
+if !exists('g:searchhi_off_events')
+    let g:searchhi_off_events = ''
+endif
+
 " Setting it to `Incsearch` works out surprisingly nicely
 highlight default link CurrentSearch Incsearch
 

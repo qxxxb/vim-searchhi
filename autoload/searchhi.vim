@@ -63,7 +63,13 @@ function! searchhi#on(expect_visual, ...) range
 
         augroup searchhi_auto_toggle
             autocmd!
+
             autocmd BufEnter * call s:on_buf_enter()
+
+            if g:searchhi_off_events != ''
+                execute 'autocmd ' . g:searchhi_off_events .
+                    \ ' * call searchhi#off(0)'
+            endif
         augroup END
     endif
 
