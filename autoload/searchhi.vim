@@ -77,8 +77,8 @@ function! searchhi#on(expect_visual, ...) range
 endfunction
 
 function! s:on_buf_enter()
-    " `match` highlights occurrences in the current window. However, we want
-    " it to only highlight in the current buffer
+    " `match()` highlights occurrences in the current window. However, we want
+    " it to only highlight occurrences in the current buffer
     "
     " bufnr('%') is the number of the current buffer
     if bufnr('%') == g:searchhi_match_buffer
@@ -109,7 +109,7 @@ function! searchhi#off(expect_visual, ...) range
         endif
 
         if !same_window && !match_window_exists
-            " If the match window doesn't exist, then this match nothing
+            " If the match window doesn't exist, then this match doesn't
             " points at anything
             unlet g:searchhi_match
         else
@@ -118,7 +118,7 @@ function! searchhi#off(expect_visual, ...) range
             " This probably doesn't need to be `silent!` since I think I have
             " covered all the cases where it might throw an error. Nonetheless,
             " it's here just in case
-            silent! call matchdelete(g:searchhi_match)
+            call matchdelete(g:searchhi_match)
             unlet g:searchhi_match
         endif
 
