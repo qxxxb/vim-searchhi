@@ -20,7 +20,7 @@ function! searchhi#on(expect_visual, ...) range
     let start_line = get(a:, 2, line('.'))
     let start_column = get(a:, 3, col('.'))
 
-    if !exists('g:current_match')
+    if !exists('g:searchhi_match')
         " Highlight the search result under the cursor
 
         " The pattern is restricted to the line and column where the current
@@ -42,67 +42,98 @@ function! searchhi#on(expect_visual, ...) range
         "
         " These variables are global because there can only be one search
         " highlight active at one time
-        let g:current_match = matchadd("CurrentSearch", pattern)
-        let g:current_match_tab = tabpagenr()
-        let g:current_match_window = winnr()
-    endif
+        let g:searchhi_match = matchadd("CurrentSearch", pattern)
+        let g:searchhi_match_window = win_getid()
+        let g:searchhi_match_buffer = bufnr('%')
 
-    if g:searchhi_autocmds_enabled
-        doautocmd <nomodeline> User SearchHiOn
-    endif
+        if g:searchhi_autocmds_enabled
+            doautocmd <nomodeline> User SearchHiOn
+        endif
 
-    if g:searchhi_open_folds
-        try
-            " Try to open a fold (this will exit visual mode and go to normal
-            " mode)
-            normal! zo
-            catch /^Vim\%((\a\+)\)\=:E490/
-        endtry
+        if g:searchhi_open_folds
+            try
+                " Try to open a fold (this will exit visual mode and go to normal
+                " mode)
+                normal! zo
+                catch /^Vim\%((\a\+)\)\=:E490/
+            endtry
 
-        let is_visual = 0
+            let is_visual = 0
+        endif
+
+        augroup searchhi_auto_toggle
+            autocmd!
+            autocmd BufEnter * call s:on_buf_enter()
+        augroup END
     endif
 
     call s:restore_visual_maybe(a:expect_visual, is_visual)
 endfunction
 
+function! s:on_buf_enter()
+    " `match` highlights occurrences in the current window. However, we want
+    " it to only highlight in the current buffer
+    "
+    " bufnr('%') is the number of the current buffer
+    if bufnr('%') == g:searchhi_match_buffer
+        call searchhi#on(0)
+    else
+        call searchhi#off(0, 0, 1)
+    endif
+endfunction
+
 function! searchhi#off(expect_visual, ...) range
     let is_visual = get(a:, 1, 0)
+    let preserve_auto_toggle = get(a:, 2, 1)
 
-    if exists('g:current_match')
-        let original_tab = tabpagenr()
-        let original_window = winnr()
+    if exists('g:searchhi_match')
+        let original_window = win_getid()
 
         let same_window = 0
-        if (original_tab == g:current_match_tab &&
-          \ original_window == g:current_match_window)
+        if (original_window == g:searchhi_match_window)
             let same_window = 1
         endif
 
         if !same_window
-            " Move to the tab and window where the highlight is. First we have
-            " to save the current window and tab information so we can return
-            " to it later
-            execute 'noautocmd ' . g:current_match_tab . 'tabnext'
-            execute 'noautocmd ' . g:current_match_window . 'wincmd w'
+            " Move to the tab and window where the highlight is
+            "
+            " This can be false if the other window was closed
+            noautocmd let match_window_exists =
+                \ win_gotoid(g:searchhi_match_window)
         endif
 
-        " Remove the highlight
-        call matchdelete(g:current_match)
-        unlet g:current_match
+        if !same_window && !match_window_exists
+            " If the match window doesn't exist, then this match nothing
+            " points at anything
+            unlet g:searchhi_match
+        else
+            " Remove the highlight
+            "
+            " This probably doesn't need to be `silent!` since I think I have
+            " covered all the cases where it might throw an error. Nonetheless,
+            " it's here just in case
+            silent! call matchdelete(g:searchhi_match)
+            unlet g:searchhi_match
+        endif
 
-        if !same_window
-            " Move back to original window
-            execute 'noautocmd ' . original_tab . 'tabnext'
-            execute 'noautocmd ' . original_window . 'wincmd w'
+        if !same_window && match_window_exists
+            " Move back to the original window
+            noautocmd call win_gotoid(original_window)
 
             " If there was a visual selection before we moved to another
             " window, it got clobbered
             let is_visual = 0
         endif
-    endif
 
-    if g:searchhi_autocmds_enabled
-        doautocmd <nomodeline> User SearchHiOff
+        if !preserve_auto_toggle
+            augroup searchhi_auto_toggle
+                autocmd!
+            augroup END
+        endif
+
+        if g:searchhi_autocmds_enabled
+            doautocmd <nomodeline> User SearchHiOff
+        endif
     endif
 
     call s:restore_visual_maybe(a:expect_visual, is_visual)
