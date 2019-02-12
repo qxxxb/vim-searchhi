@@ -20,7 +20,7 @@ function! searchhi#on(expect_visual, ...) range
     let start_line = get(a:, 2, line('.'))
     let start_column = get(a:, 3, col('.'))
 
-    if !exists('g:searchhi_match')
+    if !exists('g:searchhi_match') && !s:in_cmdwin()
         " Highlight the search result under the cursor
 
         " The pattern is restricted to the line and column where the current
@@ -92,7 +92,7 @@ function! searchhi#off(expect_visual, ...) range
     let is_visual = get(a:, 1, 0)
     let preserve_auto_toggle = get(a:, 2, 1)
 
-    if exists('g:searchhi_match')
+    if exists('g:searchhi_match') && !s:in_cmdwin()
         let original_window = win_getid()
 
         let same_window = 0
@@ -279,6 +279,10 @@ function! s:in_word()
     " Return whether the character under the cursor (found by using `/\%c`) is
     " over a word character (`/\w`). `=~` is 'if the regexp matches'
     return getline('.') =~ '\%' . col('.') . 'c\w'
+endfunction
+
+function! s:in_cmdwin()
+    return bufnr('%') == '[Command Line]'
 endfunction
 
 " }}}
