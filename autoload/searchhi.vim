@@ -23,15 +23,29 @@ function! searchhi#on(expect_visual, ...) range
     if !exists('g:searchhi_match') && !s:in_cmdwin()
         " Highlight the search result under the cursor
 
+        let prev_search = @/
+        if s:is_very_magic(prev_search)
+            " Hack: yank the highlighted text to get the literal text. As of
+            " now I can't find a simple way to convert a very magic pattern to
+            " a magic pattern. This hack actually seems to work well, however
+            "
+            " Use an arbitrary register (I chose 's')
+            let tmp = getreg('s')
+            normal! "sygn
+            let prev_search = getreg('s')
+            call setreg('s', tmp)
+        endif
+
         " The pattern is restricted to the line and column where the current
         " search result begins, using (`/\%l`) and (`/\%c`) respectively. The
-        " previous search (`@/`), which is surrounded by a non-capturing group
+        " previous search, which is surrounded by a non-capturing group
         " (`/\%(`), is then used to finish the pattern
         let pattern =
             \ '\%' . start_line . 'l' .
             \ '\%' . start_column . 'c' .
-            \ '\%(' . @/ . '\)'
+            \ '\%(' . prev_search . '\)'
 
+        " I think this already handles `smartcase` properly
         if &ignorecase
             let pattern .= '\c'
         endif
@@ -264,7 +278,7 @@ function! searchhi#on_stay(direction, expect_visual, ...) range
     " Search in direction (`direction`), accept potential match at cursor
     " position (`'c'`), and do not move the cursor (`'n'`)
     let flags = direction . 'cn'
-    " `@\` contains the previous search
+    " `@/` contains the previous search
     let [start_line, start_column] = searchpos(@/, flags)
 
     call searchhi#on(a:expect_visual, is_visual, start_line, start_column)
@@ -311,6 +325,10 @@ function! s:is_visual()
     " `=~#` is if regexp matches (case sensitive)
     " `mode(1)` returns the full name of the mode
     return mode(1) =~# "[vV\<C-v>]"
+endfunction
+
+function s:is_very_magic(pattern)
+    return a:pattern =~ '^\\v'
 endfunction
 
 " }}}
