@@ -20,7 +20,7 @@ function! searchhi#on(expect_visual, ...) range
     let start_line = get(a:, 2, line('.'))
     let start_column = get(a:, 3, col('.'))
 
-    if !exists('g:searchhi_match') && !s:in_cmdwin()
+    if !exists('g:searchhi_match')
         " Highlight the search result under the cursor
 
         let prev_search = @/
@@ -127,7 +127,7 @@ function! searchhi#off(expect_visual, ...) range
     let is_visual = get(a:, 1, 0)
     let from_auto_toggle = get(a:, 2, 0)
 
-    if exists('g:searchhi_match') && !s:in_cmdwin()
+    if exists('g:searchhi_match')
         let original_window = win_getid()
 
         let same_window = 0
@@ -315,10 +315,6 @@ function! s:in_word()
     " Return whether the character under the cursor (found by using `/\%c`) is
     " over a word character (`/\w`). `=~` is 'if the regexp matches'
     return getline('.') =~ '\%' . col('.') . 'c\w'
-endfunction
-
-function! s:in_cmdwin()
-    return bufnr('%') == '[Command Line]'
 endfunction
 
 function! s:is_visual()
