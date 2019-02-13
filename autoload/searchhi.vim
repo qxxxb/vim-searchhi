@@ -81,15 +81,15 @@ function! searchhi#on(expect_visual, ...) range
             autocmd!
 
             if g:searchhi_auto_toggle
-                autocmd WinEnter,BufEnter * call s:on_enter()
-                autocmd WinLeave,BufLeave * call s:on_leave()
+                autocmd WinEnter,BufEnter * silent! call s:on_enter()
+                autocmd WinLeave,BufLeave * silent! call s:on_leave()
             endif
 
             if g:searchhi_off_events != ''
                 " `autocmd!` to replace the autocmds above
                 execute 'autocmd! ' . g:searchhi_off_events .
                     \ ' * let is_visual = s:is_visual() | '.
-                    \ 'call searchhi#off(is_visual, is_visual)'
+                    \ 'silent! call searchhi#off(is_visual, is_visual)'
             endif
         augroup END
     endif
