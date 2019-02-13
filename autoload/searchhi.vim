@@ -21,34 +21,51 @@ function! searchhi#on(expect_visual, ...) range
     let start_column = get(a:, 3, col('.'))
 
     if !exists('g:searchhi_match')
-        " Highlight the search result under the cursor
+        " Get the search pattern {{{
 
-        let prev_search = @/
-        if s:is_very_magic(prev_search)
-            " Hack: yank the highlighted text to get the literal text. As of
-            " now I can't find a simple way to convert a very magic pattern to
-            " a magic pattern. This hack actually seems to work well, however
-            "
-            " Use an arbitrary register (I chose 's')
-            let tmp = getreg('s')
-            normal! "sygn
-            let prev_search = getreg('s')
-            call setreg('s', tmp)
+        if exists('g:searchhi_match_pattern')
+            " This means that method is being called from one of the
+            " auto-toggle autocmds, where the highlight is hidden but the
+            " other information needed to produce the highlight is still
+            " present. The search pattern is one of these  (note that it
+            " already specifies the line and cursor)
+            let pattern = g:searchhi_match_pattern
+        else
+            let prev_search = @/
+            if s:is_very_magic(prev_search)
+                " Hack: yank the highlighted text to get the literal text. As of
+                " now I can't find a simple way to convert a very magic pattern to
+                " a magic pattern. This hack does seems to work well, nonetheless
+                "
+                " We also have to save and restore the cursor position because
+                " `ygn` will move the cursor to the search result if it's not
+                " already there
+
+                " Use an arbitrary register (I chose 's')
+                let save_cursor = getcurpos()
+                let save_reg = getreg('s')
+                normal! "sygn
+                let prev_search = getreg('s')
+                call setreg('s', save_reg)
+                call setpos('.', save_cursor)
+            endif
+
+            " The pattern is restricted to the line and column where the current
+            " search result begins, using (`/\%l`) and (`/\%c`) respectively. The
+            " previous search, which is surrounded by a non-capturing group
+            " (`/\%(`), is then used to finish the pattern
+            let pattern =
+                \ '\%' . start_line . 'l' .
+                \ '\%' . start_column . 'c' .
+                \ '\%(' . prev_search . '\)'
+
+            " I think this already handles `smartcase` properly
+            if &ignorecase
+                let pattern .= '\c'
+            endif
         endif
 
-        " The pattern is restricted to the line and column where the current
-        " search result begins, using (`/\%l`) and (`/\%c`) respectively. The
-        " previous search, which is surrounded by a non-capturing group
-        " (`/\%(`), is then used to finish the pattern
-        let pattern =
-            \ '\%' . start_line . 'l' .
-            \ '\%' . start_column . 'c' .
-            \ '\%(' . prev_search . '\)'
-
-        " I think this already handles `smartcase` properly
-        if &ignorecase
-            let pattern .= '\c'
-        endif
+        " }}}
 
         " Highlight the pattern and store the ID of the match in a script-wide
         " variable so that it can be deleted later, which will remove the
@@ -59,8 +76,7 @@ function! searchhi#on(expect_visual, ...) range
         let g:searchhi_match = matchadd("CurrentSearch", pattern)
         let g:searchhi_match_window = win_getid()
         let g:searchhi_match_buffer = bufnr('%')
-        let g:searchhi_match_line = start_line
-        let g:searchhi_match_column = start_column
+        let g:searchhi_match_pattern = pattern
 
         if g:searchhi_autocmds_enabled
             doautocmd <nomodeline> User SearchHiOn
@@ -108,12 +124,8 @@ function! s:on_enter()
         " The line and colum numbers must be provided so that highlighting
         " will still work if the cursor is not in the same position.
         let is_visual = s:is_visual()
-        call searchhi#on(
-            \ is_visual,
-            \ is_visual,
-            \ g:searchhi_match_line,
-            \ g:searchhi_match_column
-        \ )
+
+        call searchhi#on(is_visual, is_visual)
     endif
 endfunction
 
@@ -169,13 +181,21 @@ function! searchhi#off(expect_visual, ...) range
 
             unlet g:searchhi_match_window
             unlet g:searchhi_match_buffer
-            unlet g:searchhi_match_line
-            unlet g:searchhi_match_column
+            unlet g:searchhi_match_pattern
         endif
 
         if g:searchhi_autocmds_enabled
             doautocmd <nomodeline> User SearchHiOff
         endif
+    elseif !exists('g:searchhi_match') &&
+         \ exists('g:searchhi_match_pattern') &&
+         \ !from_auto_toggle
+        " This intended situation for this to be called is:
+        "     - Searches are highlighted
+        "     - Switch to another window, buffer, or tab
+        "     - Start are new search (`/`) or hit `n` or something that will
+        "       call `searchhi#update`
+        unlet g:searchhi_match_pattern
     endif
 
     call s:restore_visual_maybe(a:expect_visual, is_visual)
