@@ -135,10 +135,6 @@ function! searchhi#off(expect_visual, ...) range
             unlet g:searchhi_match
         else
             " Remove the highlight
-            "
-            " This probably doesn't need to be `silent!` since I think I have
-            " covered all the cases where it might throw an error. Nonetheless,
-            " it's here just in case
             call matchdelete(g:searchhi_match)
             unlet g:searchhi_match
         endif
