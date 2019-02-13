@@ -138,20 +138,20 @@ function! searchhi#off(expect_visual, ...) range
         if !same_window
             " Move to the tab and window where the highlight is
             "
-            " This can be false if the other window was closed
+            " This can be false if the other window was closed.  If this true,
+            " then it means the it exists and we have moved to it.
             noautocmd let match_window_exists =
                 \ win_gotoid(g:searchhi_match_window)
         endif
 
-        if !same_window && !match_window_exists
-            " If the match window doesn't exist, then this match doesn't
-            " points at anything
-            unlet g:searchhi_match
-        else
+        if same_window || match_window_exists
             " Remove the highlight
             call matchdelete(g:searchhi_match)
-            unlet g:searchhi_match
         endif
+
+        " We need to do this because this is our indication that highlighting
+        " is off
+        unlet g:searchhi_match
 
         if !same_window && match_window_exists
             " Move back to the original window
