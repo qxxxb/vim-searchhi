@@ -3,7 +3,7 @@
 Highlight the current search result in a different style than the other search
 results.
 
-![Demo gif](https://i.imgur.com/lkRaJkH.gif)
+![Demo gif](https://raw.githubusercontent.com/qxxxb/vim-searchhi/assets/demo.gif)
 
 ## Credits
 
