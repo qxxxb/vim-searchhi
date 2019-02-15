@@ -83,6 +83,13 @@ vmap gz* <Plug>(asterisk-gz*)<Plug>(searchhi-update-stay-backward)
 vmap gz# <Plug>(asterisk-gz#)<Plug>(searchhi-update-stay-backward)
 ```
 
+If you use the "keep cursor position" feature (i.e.
+`let g:asterisk#keeppos = 1`), then also do this:
+
+```vim
+let g:searchhi_asterisk#keeppos = 1
+```
+
 ## Customization
 
 ### Highlight style

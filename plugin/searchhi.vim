@@ -23,6 +23,10 @@ if !exists('g:searchhi_off_events')
     let g:searchhi_off_events = ''
 endif
 
+if !exists('g:searchhi_asterisk#keeppos')
+    let g:searchhi_asterisk#keeppos = 0
+endif
+
 " Setting it to `Incsearch` works out surprisingly nicely
 highlight default link CurrentSearch Incsearch
 
@@ -47,11 +51,22 @@ noremap <Plug>(searchhi-/)
 noremap <Plug>(searchhi-?)
     \ :<C-U>call searchhi#pre_search(0)<CR>?
 
-noremap <silent> <Plug>(searchhi-n)
-    \ n:<C-U>call searchhi#update(0)<CR>
+if g:searchhi_asterisk#keeppos
+    " These search backwards because the cursor is always 'inside' the search
+    " result, so the start of the search result is behind the cursor
 
-noremap <silent> <Plug>(searchhi-N)
-    \ N:<C-U>call searchhi#update(0)<CR>
+    noremap <silent> <Plug>(searchhi-n)
+        \ n:<C-U>call searchhi#update_stay('b', 0)<CR>
+
+    noremap <silent> <Plug>(searchhi-N)
+        \ N:<C-U>call searchhi#update_stay('b', 0)<CR>
+else
+    noremap <silent> <Plug>(searchhi-n)
+        \ n:<C-U>call searchhi#update(0)<CR>
+
+    noremap <silent> <Plug>(searchhi-N)
+        \ N:<C-U>call searchhi#update(0)<CR>
+endif
 
 noremap <silent> <Plug>(searchhi-*)
     \ *:<C-U>call searchhi#update(0)<CR>
@@ -116,11 +131,19 @@ if g:searchhi_visual_maps_enabled
     noremap <Plug>(searchhi-v-?)
         \ :<C-U>call searchhi#pre_search(1)<CR>?
 
-    noremap <silent> <Plug>(searchhi-v-n)
-        \ n:<C-U>call searchhi#update(1)<CR>
+    if g:searchhi_asterisk#keeppos
+        noremap <silent> <Plug>(searchhi-v-n)
+            \ n:<C-U>call searchhi#update_stay('b', 1)<CR>
 
-    noremap <silent> <Plug>(searchhi-v-N)
-        \ N:<C-U>call searchhi#update(1)<CR>
+        noremap <silent> <Plug>(searchhi-v-N)
+            \ N:<C-U>call searchhi#update_stay('b', 1)<CR>
+    else
+        noremap <silent> <Plug>(searchhi-v-n)
+            \ n:<C-U>call searchhi#update(1)<CR>
+
+        noremap <silent> <Plug>(searchhi-v-N)
+            \ N:<C-U>call searchhi#update(1)<CR>
+    endif
 
     noremap <silent> <Plug>(searchhi-v-*)
         \ *:<C-U>call searchhi#update(1)<CR>

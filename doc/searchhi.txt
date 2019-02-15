@@ -208,6 +208,14 @@ search count.
     let g:searchhi_off_events = 'CursorMoved,InsertEnter'
 <
 
+*g:searchhi_asterisk#keeppos*
+    For compatibility with the "keep cursor position" feature of
+    {vim-asterisk}{3}. Should manually be set to the same value as
+    |g:asterisk#keeppos| so that it can be handled appropriately.
+    `---`
+    Type: |Number|
+    Default: `0`
+
 ==============================================================================
 5. Mappings                                                *searchhi-mappings*
 
