@@ -83,7 +83,7 @@ vmap gz* <Plug>(asterisk-gz*)<Plug>(searchhi-update-stay-backward)
 vmap gz# <Plug>(asterisk-gz#)<Plug>(searchhi-update-stay-backward)
 ```
 
-If you use the "keep cursor position" feature (i.e.
+If you use the "keep cursor position" feature of [vim-asterisk] (i.e.
 `let g:asterisk#keeppos = 1`), then also do this:
 
 ```vim
