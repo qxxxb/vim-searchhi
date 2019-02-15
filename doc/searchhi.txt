@@ -210,7 +210,7 @@ search count.
 
 *g:searchhi_asterisk#keeppos*
     For compatibility with the "keep cursor position" feature of
-    {vim-asterisk}{3}. Should manually be set to the same value as
+    {vim-asterisk}{3}, this should manually be set to the same value as
     |g:asterisk#keeppos| so that it can be handled appropriately.
     `---`
     Type: |Number|
