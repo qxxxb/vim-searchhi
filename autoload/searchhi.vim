@@ -44,38 +44,13 @@ function! searchhi#on(expect_visual, ...) range
             let query = @/
         endif
 
-        let is_very_magic = s:is_very_magic(query)
-        if is_very_magic
-            " Hack: yank the highlighted text to get the literal text. As of
-            " now I can't find a simple way to convert a very magic pattern to
-            " a magic pattern. This hack does seems to work well, nonetheless
-            "
-            " We also have to save and restore the cursor position because
-            " `ygn` will move the cursor to the search result if it's not
-            " already there
-            "
-            " We also have to save the magic query so that it can be used to
-            " generate the appropriate literal text if we search again
-
-            let very_magic_query = query
-
-            " Use an arbitrary register (I chose 's')
-            let save_cursor = getcurpos()
-            let save_reg = getreg('s')
-            normal! "sygn
-            let query = getreg('s')
-            call setreg('s', save_reg)
-            call setpos('.', save_cursor)
-        endif
-
         " The pattern is restricted to the line and column where the current
         " search result begins, using (`/\%l`) and (`/\%c`) respectively. The
-        " previous search, which is surrounded by a non-capturing group
-        " (`/\%(`), is then used to finish the pattern
+        " previous search query is then used to finish the pattern
         let pattern =
             \ '\%' . start_line . 'l' .
             \ '\%' . start_column . 'c' .
-            \ '\%(' . query . '\)'
+            \ query
 
         " I think this already handles `smartcase` properly
         if &ignorecase
@@ -95,11 +70,7 @@ function! searchhi#on(expect_visual, ...) range
         let g:searchhi_match_buffer = bufnr('%')
         let g:searchhi_match_line = start_line
         let g:searchhi_match_column = start_column
-        if is_very_magic
-            let g:searchhi_match_query = very_magic_query
-        else
-            let g:searchhi_match_query = query
-        endif
+        let g:searchhi_match_query = query
 
         if g:searchhi_autocmds_enabled
             unsilent doautocmd <nomodeline> User SearchHiOn
@@ -427,10 +398,6 @@ function! s:is_visual()
     " `=~#` is if regexp matches (case sensitive)
     " `mode(1)` returns the full name of the mode
     return mode(1) =~# "[vV\<C-v>]"
-endfunction
-
-function s:is_very_magic(pattern)
-    return a:pattern =~ '^\\v'
 endfunction
 
 " }}}
