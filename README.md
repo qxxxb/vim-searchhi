@@ -38,7 +38,7 @@ nmap * <Plug>(searchhi-*)
 nmap # <Plug>(searchhi-#)
 nmap g* <Plug>(searchhi-g*)
 nmap g# <Plug>(searchhi-g#)
-nmap <silent> <C-L> <Plug>(searchhi-off-all)
+nmap <C-L> <Plug>(searchhi-off-all)
 
 vmap / <Plug>(searchhi-v-/)
 vmap ? <Plug>(searchhi-v-?)
@@ -48,7 +48,7 @@ vmap * <Plug>(searchhi-v-*)
 vmap # <Plug>(searchhi-v-#)
 vmap g* <Plug>(searchhi-v-g*)
 vmap g# <Plug>(searchhi-v-g#)
-vmap <silent> <C-L> <Plug>(searchhi-v-off-all)
+vmap <C-L> <Plug>(searchhi-v-off-all)
 ```
 
 Integration with [vim-anzu]:

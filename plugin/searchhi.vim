@@ -34,6 +34,10 @@ if !exists('g:searchhi_visual_maps_enabled')
     let g:searchhi_visual_maps_enabled = 1
 endif
 
+if !exists('g:searchhi_trigger_always')
+    let g:searchhi_trigger_always = 0
+endif
+
 " Setting it to `Incsearch` works out surprisingly nicely
 highlight default link CurrentSearch Incsearch
 
@@ -51,6 +55,26 @@ highlight default link CurrentSearch Incsearch
 " recursive, so the solution here is just to have separate `<Plug>` mappings
 " that completely replace the functionality of the original normal mode
 " command
+
+if g:searchhi_trigger_always
+    call searchhi#triggers_on()
+
+    function! s:toggle_triggers(state)
+        " Calling the command always switches to normal mode, so `expect_visual`
+        " and `is_visual` are both false
+        if a:state
+            call searchhi#triggers_on()
+            call searchhi#update_stay(0, 0)
+        else
+            call searchhi#triggers_off()
+            call searchhi#off(0, 0)
+        endif
+    endfunction
+
+    command -bar -bang -range SearchHi call s:toggle_triggers(<bang>1)
+
+    finish
+endif
 
 noremap <Plug>(searchhi-/)
     \ :<C-U>call searchhi#pre_search(0)<CR>/
@@ -85,6 +109,8 @@ noremap <silent> <Plug>(searchhi-n-stay)
 
 noremap <silent> <Plug>(searchhi-N-stay)
     \ N:<C-U>call searchhi#update_stay(0)<CR>
+
+" }}}
 
 " General use mappings {{{
 

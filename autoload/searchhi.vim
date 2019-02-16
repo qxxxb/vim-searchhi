@@ -87,31 +87,7 @@ function! searchhi#on(expect_visual, ...) range
             let is_visual = 0
         endif
 
-        augroup searchhi_triggers
-            autocmd!
-
-            if g:searchhi_handle_windows
-                autocmd WinLeave,BufLeave * silent call s:on_leave()
-                autocmd WinEnter,BufEnter * silent call s:on_enter()
-            endif
-
-            " `autocmd!` to replace the autocmds above
-
-            if g:searchhi_update_triggers_no_autocmd != ''
-                execute 'autocmd! ' . g:searchhi_update_triggers_no_autocmd .
-                    \ ' * silent call s:update_from_trigger(0)'
-            endif
-
-            if g:searchhi_update_triggers != ''
-                execute 'autocmd! ' . g:searchhi_update_triggers .
-                    \ ' * silent call s:update_from_trigger(1)'
-            endif
-
-            if g:searchhi_off_all_triggers != ''
-                execute 'autocmd! ' . g:searchhi_off_all_triggers .
-                    \ ' * silent call s:off_all()'
-            endif
-        augroup END
+        call searchhi#triggers_on()
     endif
 
     call s:restore_visual_maybe(a:expect_visual, is_visual)
@@ -171,20 +147,11 @@ function! searchhi#off(expect_visual, ...) range
     if !tmp
         " Clear everything
 
-        augroup searchhi_triggers
-            autocmd!
-        augroup END
-
-        " If one of them exists, they all exist
-        let all_exist = exists('g:searchhi_match_window')
-
-        if all_exist
-            unlet g:searchhi_match_window
-            unlet g:searchhi_match_buffer
-            unlet g:searchhi_match_query
-            unlet g:searchhi_match_line
-            unlet g:searchhi_match_column
+        if !g:searchhi_trigger_always
+            call searchhi#triggers_off()
         endif
+
+        call searchhi#unlet_match_info()
     endif
 
     call s:restore_visual_maybe(a:expect_visual, is_visual)
@@ -261,6 +228,14 @@ function! searchhi#update_stay(expect_visual, ...) range
     call searchhi#on_stay(a:expect_visual, is_visual)
 endfunction
 
+function! searchhi#unlet_match_info()
+    silent! unlet g:searchhi_match_window
+    silent! unlet g:searchhi_match_buffer
+    silent! unlet g:searchhi_match_query
+    silent! unlet g:searchhi_match_line
+    silent! unlet g:searchhi_match_column
+endfunction
+
 " }}}
 
 " Functions for `/` {{{
@@ -320,10 +295,77 @@ endfunction
 
 " }}}
 
-" Functions for `g:searchhi_handle_windows = 1` {{{
+" Trigger functions {{{
+
+function! searchhi#triggers_on()
+    augroup searchhi_triggers
+        autocmd!
+
+        if g:searchhi_handle_windows
+            if g:searchhi_trigger_always
+                autocmd WinLeave,BufLeave * silent call s:check_before('s:on_leave()')
+                autocmd WinEnter,BufEnter * silent call s:check_before('s:on_enter()')
+            else
+                autocmd WinLeave,BufLeave * silent call s:on_leave()
+                autocmd WinEnter,BufEnter * silent call s:on_enter()
+            endif
+        endif
+
+        " `autocmd!` to replace the autocmds above
+
+        if g:searchhi_trigger_always
+            if g:searchhi_update_triggers_no_autocmd != ''
+                execute 'autocmd! ' . g:searchhi_update_triggers_no_autocmd .
+                    \ " * silent call s:check_before('s:update_from_trigger(0)')"
+            endif
+
+            if g:searchhi_update_triggers != ''
+                execute 'autocmd! ' . g:searchhi_update_triggers .
+                    \ " * silent call s:check_before('s:update_from_trigger(1)')"
+            endif
+
+            if g:searchhi_off_all_triggers != ''
+                execute 'autocmd! ' . g:searchhi_off_all_triggers .
+                    \ " * silent call s:check_before('s:off_all()')"
+            endif
+        else
+            if g:searchhi_update_triggers_no_autocmd != ''
+                execute 'autocmd! ' . g:searchhi_update_triggers_no_autocmd .
+                    \ ' * silent call s:update_from_trigger(0)'
+            endif
+
+            if g:searchhi_update_triggers != ''
+                execute 'autocmd! ' . g:searchhi_update_triggers .
+                    \ ' * silent call s:update_from_trigger(1)'
+            endif
+
+            if g:searchhi_off_all_triggers != ''
+                execute 'autocmd! ' . g:searchhi_off_all_triggers .
+                    \ ' * silent call s:off_all()'
+            endif
+        endif
+    augroup END
+endfunction
+
+function! searchhi#triggers_off()
+    augroup searchhi_triggers
+        autocmd!
+    augroup END
+endfunction
+
+function! s:check_before(callback)
+    if v:hlsearch
+        " call searchhi#unlet_match_info()
+        silent! unlet g:searchhi_match_query
+        execute 'call ' . a:callback
+    else
+        let is_visual = searchhi#is_visual()
+        call searchhi#off(is_visual, is_visual)
+    endif
+endfunction
 
 function! s:on_leave()
-    let is_visual = s:is_visual()
+    let is_visual = searchhi#is_visual()
 
     " We need to turn off autocmds before calling `searchhi#off` so that
     " autocmds that echo things out won't cause a prompt to appear. For
@@ -341,12 +383,12 @@ function! s:on_leave()
 endfunction
 
 function! s:on_enter()
-    let is_visual = s:is_visual()
+    let is_visual = searchhi#is_visual()
     call searchhi#on_stay(is_visual, is_visual)
 endfunction
 
 function! s:update_from_trigger(use_autocmds)
-    let is_visual = s:is_visual()
+    let is_visual = searchhi#is_visual()
 
     let orig = g:searchhi_autocmds_enabled
     let g:searchhi_autocmds_enabled = a:use_autocmds
@@ -365,7 +407,7 @@ function! s:update_from_trigger(use_autocmds)
 endfunction
 
 function! s:off_all()
-    let is_visual = s:is_visual()
+    let is_visual = searchhi#is_visual()
     call searchhi#off(is_visual, is_visual)
 
     " Hack: because calling `:nohlsearch` will not work (see help page), we
@@ -394,7 +436,7 @@ function! s:restore_visual_maybe(expect_visual, is_visual)
     endif
 endfunction
 
-function! s:is_visual()
+function! searchhi#is_visual()
     " `=~#` is if regexp matches (case sensitive)
     " `mode(1)` returns the full name of the mode
     return mode(1) =~# "[vV\<C-v>]"
