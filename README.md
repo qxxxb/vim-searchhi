@@ -5,6 +5,10 @@ results.
 
 ![Demo gif](https://raw.githubusercontent.com/qxxxb/vim-searchhi/assets/demo.gif)
 
+## Note
+I highly recommend [vim-searchlight]. It does the same thing as this plugin,
+but without any mappings.
+
 ## Credits
 
 This plugin would not have existed without [vim-searchant]. It uses the same
@@ -135,3 +139,4 @@ let g:searchhi_off_all_triggers = 'InsertEnter'
 [vim-searchant]: https://github.com/timakro/vim-searchant
 [vim-anzu]: https://github.com/osyo-manga/vim-anzu
 [vim-asterisk]: https://github.com/haya14busa/vim-asterisk
+[vim-searchlight]: https://github.com/PeterRincker/vim-searchlight
