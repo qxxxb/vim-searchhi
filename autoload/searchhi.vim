@@ -51,14 +51,16 @@ function! searchhi#update(...) range
     let expect_visual = get(a:, 1, s:is_visual())
     let is_visual = get(a:, 2, s:is_visual())
 
-    if exists('g:searchhi_force_ignorecase') && @/ !~ '\\c$'
-        let @/ .= '\c'
-    endif
-
     let query = @/
 
-    let [end_line, end_column] = searchpos(query, 'bneW')
-    let [start_line, start_column] = searchpos(query, 'bcnW')
+    if exists('g:searchhi_force_ignorecase')
+        let search_query = query . '\c'
+    else
+        let search_query = query
+    endif
+
+    let [end_line, end_column] = searchpos(search_query, 'bneW')
+    let [start_line, start_column] = searchpos(search_query, 'bcnW')
 
     if start_line > end_line || start_column > end_column
         " If one of them exists (`g:searchhi_match_column`), they all exist
@@ -208,10 +210,6 @@ endfunction
 function! searchhi#listen_cmdline_leave()
     if getcmdtype() == '/' || getcmdtype() == '?'
         call searchhi#update()
-    endif
-
-    if exists('g:searchhi_force_ignorecase')
-        unlet g:searchhi_force_ignorecase
     endif
 endfunction
 
