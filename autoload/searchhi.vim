@@ -44,17 +44,32 @@ function! searchhi#on(expect_visual, ...) range
             let query = @/
         endif
 
-        " The pattern is restricted to the line and column where the current
-        " search result begins, using (`/\%l`) and (`/\%c`) respectively. The
-        " previous search query is then used to finish the pattern
-        let pattern =
-            \ '\%' . start_line . 'l' .
-            \ '\%' . start_column . 'c' .
-            \ query
+        let multiline = query =~ "\n"
+        if !multiline
+            " The pattern is restricted to the line and column where the current
+            " search result begins, using (`/\%l`) and (`/\%c`) respectively. The
+            " previous search query is then used to finish the pattern
+            let pattern =
+                \ '\%' . start_line . 'l' .
+                \ '\%' . start_column . 'c' .
+                \ query
 
-        " I think this already handles `smartcase` properly
-        if &ignorecase
-            let pattern .= '\c'
+            " I think this already handles `smartcase` properly
+            if &ignorecase
+                let pattern .= '\c'
+            endif
+
+            let g:searchhi_match = matchadd("CurrentSearch", pattern)
+        else
+            let [end_line, end_column] = searchpos(query, 'cenW')
+            let length = end_column - start_column + 1
+
+            " This is more efficient than `matchadd` because it doesn't use a
+            " regex. We use this if we don't have a multline search
+            let g:searchhi_match = matchaddpos(
+                \ "CurrentSearch",
+                \ [[start_line, start_column, length]]
+            \ )
         endif
 
         " }}}
@@ -65,7 +80,6 @@ function! searchhi#on(expect_visual, ...) range
         "
         " These variables are global because there can only be one search
         " highlight active at one time
-        let g:searchhi_match = matchadd("CurrentSearch", pattern)
         let g:searchhi_match_window = win_getid()
         let g:searchhi_match_buffer = bufnr('%')
         let g:searchhi_match_line = start_line
