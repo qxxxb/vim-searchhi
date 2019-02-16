@@ -50,27 +50,27 @@ noremap <silent> <Plug>(searchhi-N)
 
 noremap <silent> <Plug>(searchhi-*)
     \ :call searchhi#listen(0, 0)<CR>
-     \:<C-U>call searchhi#force_ignorecase()<CR>*
+     \:<C-U>call searchhi#force_ignorecase(0, 0)<CR>*
 
 noremap <silent> <Plug>(searchhi-g*)
     \ :<C-U>call searchhi#listen(0, 0)<CR>
-     \:<C-U>call searchhi#force_ignorecase()<CR>g*
+     \:<C-U>call searchhi#force_ignorecase(0, 0)<CR>g*
 
 noremap <silent> <Plug>(searchhi-#)
     \ :call searchhi#listen(0, 0)<CR>
-     \:<C-U>call searchhi#force_ignorecase()<CR>#
+     \:<C-U>call searchhi#force_ignorecase(0, 0)<CR>#
 
 noremap <silent> <Plug>(searchhi-g#)
     \ :<C-U>call searchhi#listen(0, 0)<CR>
-     \:<C-U>call searchhi#force_ignorecase()<CR>g#
+     \:<C-U>call searchhi#force_ignorecase(0, 0)<CR>g#
 
 noremap <silent> <Plug>(searchhi-gd)
     \ :<C-U>call searchhi#listen(0, 0)<CR>
-     \:<C-U>call searchhi#force_ignorecase()<CR>gd
+     \:<C-U>call searchhi#force_ignorecase(0, 0)<CR>gd
 
 noremap <silent> <Plug>(searchhi-gD)
     \ :<C-U>call searchhi#listen(0, 0)<CR>
-     \:<C-U>call searchhi#force_ignorecase()<CR>gD
+     \:<C-U>call searchhi#force_ignorecase(0, 0)<CR>gD
 
 if g:searchhi_visual_maps_enabled
     noremap <silent> <Plug>(searchhi-v-listen)
@@ -97,26 +97,26 @@ if g:searchhi_visual_maps_enabled
         \ :<C-U>call searchhi#listen(1, 0)<CR>N
 
     noremap <silent> <Plug>(searchhi-v-*)
-        \ :<C-U>call searchhi#listen(1, 0)<CR>
-         \:<C-U>call searchhi#force_ignorecase()<CR>*
+        \ :<C-U>call searchhi#listen(0, 0)<CR>
+         \:<C-U>call searchhi#force_ignorecase(1, 0)<CR>*
 
     noremap <silent> <Plug>(searchhi-v-g*)
-        \ :<C-U>call searchhi#listen(1, 0)<CR>
-         \:<C-U>call searchhi#force_ignorecase()<CR>g*
+        \ :<C-U>call searchhi#listen(0, 0)<CR>
+         \:<C-U>call searchhi#force_ignorecase(1, 0)<CR>g*
 
     noremap <silent> <Plug>(searchhi-v-#)
-        \ :<C-U>call searchhi#listen(1, 0)<CR>
-         \:<C-U>call searchhi#force_ignorecase()<CR>#
+        \ :<C-U>call searchhi#listen(0, 0)<CR>
+         \:<C-U>call searchhi#force_ignorecase(1, 0)<CR>#
 
     noremap <silent> <Plug>(searchhi-v-g#)
-        \ :<C-U>call searchhi#listen(1, 0)<CR>
-         \:<C-U>call searchhi#force_ignorecase()<CR>g#
+        \ :<C-U>call searchhi#listen(0, 0)<CR>
+         \:<C-U>call searchhi#force_ignorecase(1, 0)<CR>g#
 
     noremap <silent> <Plug>(searchhi-v-gd)
-        \ :<C-U>call searchhi#listen(1, 0)<CR>
-         \:<C-U>call searchhi#force_ignorecase()<CR>gd
+        \ :<C-U>call searchhi#listen(0, 0)<CR>
+         \:<C-U>call searchhi#force_ignorecase(1, 0)<CR>gd
 
     noremap <silent> <Plug>(searchhi-v-gD)
-        \ :<C-U>call searchhi#listen(1, 0)<CR>
-         \:<C-U>call searchhi#force_ignorecase()<CR>gD
+        \ :<C-U>call searchhi#listen(0, 0)<CR>
+         \:<C-U>call searchhi#force_ignorecase(1, 0)<CR>gD
 endif

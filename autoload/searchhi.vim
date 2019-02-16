@@ -15,7 +15,7 @@ function! searchhi#await(...) range
         augroup END
     endif
 
-    call searchhi#restore_visual(expect_visual, is_visual)
+    call s:restore_visual(expect_visual, is_visual)
 endfunction
 
 " Listen mode should be used when search highlighting is on. The plugin
@@ -44,7 +44,7 @@ function! searchhi#listen(...) range
         augroup END
     endif
 
-    call searchhi#restore_visual(expect_visual, is_visual)
+    call s:restore_visual(expect_visual, is_visual)
 endfunction
 
 function! searchhi#update(...) range
@@ -125,7 +125,7 @@ function! searchhi#update(...) range
         endif
     endif
 
-    call searchhi#restore_visual(expect_visual, is_visual)
+    call s:restore_visual(expect_visual, is_visual)
 endfunction
 
 function! searchhi#clear(...) range
@@ -181,7 +181,7 @@ function! searchhi#clear(...) range
         silent! unlet g:searchhi_match_buffer
     endif
 
-    call searchhi#restore_visual(expect_visual, is_visual)
+    call s:restore_visual(expect_visual, is_visual)
 endfunction
 
 function! searchhi#clear_all(...) range
@@ -238,7 +238,7 @@ endfunction
 
 " A more accurate name would be `restore_visual_if_necessary` but that's too
 " long
-function! searchhi#restore_visual(expect_visual, is_visual)
+function! s:restore_visual(expect_visual, is_visual)
     if a:is_visual == a:expect_visual
         return
     elseif a:expect_visual && !a:is_visual
@@ -257,8 +257,13 @@ function! s:is_visual()
     return mode(1) =~# "[vV\<C-v>]"
 endfunction
 
-function! searchhi#force_ignorecase()
+function! searchhi#force_ignorecase(...) range
+    let expect_visual = get(a:, 1, s:is_visual())
+    let is_visual = get(a:, 2, s:is_visual())
+
     let g:searchhi_force_ignorecase = 1
+
+    call s:restore_visual(expect_visual, is_visual)
 endfunction
 
 " }}}
