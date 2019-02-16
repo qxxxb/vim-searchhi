@@ -1,5 +1,5 @@
 if exists('g:loaded_searchhi') || &cp
-  finish
+    finish
 endif
 let g:loaded_searchhi = 1
 

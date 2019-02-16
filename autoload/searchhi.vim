@@ -100,7 +100,6 @@ function! searchhi#update(...) range
             let g:searchhi_match_line = start_line
             let g:searchhi_match_column = start_column
             let g:searchhi_match_window = win_getid()
-            let g:searchhi_match_buffer = bufnr('%')
 
             if g:searchhi_user_autocmds_enabled
                 unsilent doautocmd <nomodeline> User SearchHiOn
@@ -180,7 +179,6 @@ function! searchhi#clear(...) range
         silent! unlet g:searchhi_match_line
         silent! unlet g:searchhi_match_column
         silent! unlet g:searchhi_match_window
-        silent! unlet g:searchhi_match_buffer
     endif
 
     call s:restore_visual(expect_visual, is_visual)
