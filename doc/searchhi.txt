@@ -59,30 +59,31 @@ Author: Tim Schumacher <tim@timakro.de>
 3. Quick start                                          *searchhi-quick-start*
 
 >
-    nmap / <Plug>(searchhi-/)
-    nmap ? <Plug>(searchhi-?)
     nmap n <Plug>(searchhi-n)
     nmap N <Plug>(searchhi-N)
     nmap * <Plug>(searchhi-*)
-    nmap # <Plug>(searchhi-#)
     nmap g* <Plug>(searchhi-g*)
+    nmap # <Plug>(searchhi-#)
     nmap g# <Plug>(searchhi-g#)
-    nmap <C-L> <Plug>(searchhi-off-all)
+    nmap gd <Plug>(searchhi-gd)
+    nmap gD <Plug>(searchhi-gD)
 
-    vmap / <Plug>(searchhi-v-/)
-    vmap ? <Plug>(searchhi-v-?)
     vmap n <Plug>(searchhi-v-n)
     vmap N <Plug>(searchhi-v-N)
     vmap * <Plug>(searchhi-v-*)
-    vmap # <Plug>(searchhi-v-#)
     vmap g* <Plug>(searchhi-v-g*)
+    vmap # <Plug>(searchhi-v-#)
     vmap g# <Plug>(searchhi-v-g#)
-    vmap <C-L> <Plug>(searchhi-v-off-all)
+    vmap gd <Plug>(searchhi-v-gd)
+    vmap gD <Plug>(searchhi-v-gD)
+
+    nmap <silent> <C-L> <Plug>(searchhi-clear-all)
+    vmap <silent> <C-L> <Plug>(searchhi-v-clear-all)
 <
 
 Integration with {vim-anzu}{2}:
 >
-    let g:searchhi_autocmds_enabled = 1
+    let g:searchhi_user_autocmds_enabled = 1
     augroup searchhi
         autocmd!
         autocmd User SearchHiOn AnzuUpdateSearchStatusOutput
@@ -92,30 +93,10 @@ Integration with {vim-anzu}{2}:
 
 Integration with {vim-asterisk}{3}:
 >
-    map * <Plug>(asterisk-*)<Plug>(searchhi-update)
-    map # <Plug>(asterisk-#)<Plug>(searchhi-update)
-    map g* <Plug>(asterisk-g*)<Plug>(searchhi-update)
-    map g# <Plug>(asterisk-g#)<Plug>(searchhi-update)
-
-    map z* <Plug>(asterisk-z*)<Plug>(searchhi-update-stay)
-    map z# <Plug>(asterisk-z#)<Plug>(searchhi-update-stay)
-    map gz* <Plug>(asterisk-gz*)<Plug>(searchhi-update-stay)
-    map gz# <Plug>(asterisk-gz#)<Plug>(searchhi-update-stay)
-<
-
-If you use the "keep cursor position" feature of {vim-asterisk}{3} (i.e.
-|g:asterisk#keeppos| = `1`), use this:
->
-    map * <Plug>(asterisk-*)<Plug>(searchhi-update-stay)
-    map # <Plug>(asterisk-#)<Plug>(searchhi-update-stay)
-    map g* <Plug>(asterisk-g*)<Plug>(searchhi-update-stay)
-    map g# <Plug>(asterisk-g#)<Plug>(searchhi-update-stay)
-
-    nmap n <Plug>(searchhi-n-stay)
-    nmap N <Plug>(searchhi-N-stay)
-
-    vmap n <Plug>(searchhi-v-n-stay)
-    vmap N <Plug>(searchhi-v-N-stay)
+    map * <Plug>(asterisk-z*)<Plug>(searchhi-update)<Plug>(searchhi-listen)
+    map # <Plug>(asterisk-z#)<Plug>(searchhi-update)<Plug>(searchhi-listen)
+    map g* <Plug>(asterisk-gz*)<Plug>(searchhi-update)<Plug>(searchhi-listen)
+    map g# <Plug>(asterisk-gz#)<Plug>(searchhi-update)<Plug>(searchhi-listen)
 <
 
 ==============================================================================
@@ -145,7 +126,7 @@ Below is an example that blinks the cursor when search highlighting is turned
 on, making the cursor easier to find. {vim-anzu}{2} is also used to echo the
 search count.
 >
-    let g:searchhi_autocmds_enabled = 1
+    let g:searchhi_user_autocmds_enabled = 1
 
     augroup searchhi
         autocmd!
@@ -164,58 +145,15 @@ search count.
 ------------------------------------------------------------------------------
 4.3. Misc                                               *searchhi-config-misc*
 
-*g:searchhi_open_folds*
-    Whether folds should be automatically opened if they contain the current
-    search result.
-    `---`
-    Type: |Number|
-    Default: `1`
-
-*g:searchhi_autocmds_enabled*
+*g:searchhi_user_autocmds_enabled*
     Whether |SearchHiOn| and |SearchHiOff| are executed.
     `---`
     Type: |Number|
     Default: `0`
 
-*g:searchhi_handle_windows*
-    If enabled:
-
-        - |WinLeave| and |BufLeave| will turn off highlighting for the current
-          search result. This will not trigger |searchhi-autocmds|, to prevent
-          prompts from appearing if the users' autocmds use |echo|.
-
-        - |WinEnter| and |BufEnter| will turn on highlighting for the current
-          search result.
-
-    `---`
-    Type: |Number|
-    Default: `1`
-
-*g:searchhi_update_triggers_no_autocmd*
-    |autocmd-events| separated by commas (no spaces) that update highlighting
-    for the current search result. These will not trigger |searchhi-autocmds|.
-
-    By default, |CursorMoved| is in |g:searchhi_update_triggers_no_autocmd|
-    instead of |g:searchhi_update_triggers| so performance does not drop
-    noticeably when holding movement keys.
-
-    `---`
-    Type: |String|
-    Default: `'CursorMoved'`
-
-*g:searchhi_update_triggers*
-    |autocmd-events| separated by commas (no spaces) that update highlighting
-    for the current search result. These trigger |searchhi-autocmds|.
-    `---`
-    Type: |String|
-    Default: `'CursorHold'`
-
-*g:searchhi_off_all_triggers*
-    |autocmd-events| separated by commas (no spaces) that turn off all search
-    highlighting. These override the |autocmd-events| used in:
-        - |g:searchhi_handle_windows|
-        - |g:searchhi_update_triggers_no_autocmd|
-        - |g:searchhi_update_triggers|
+*g:searchhi_clear_all_autocmds*
+    |autocmd-events| separated by commas (no spaces) that will clear all
+    search highlighting.
 
     Note: This uses a hack that runs `set nohlsearch`, because using the
     command |nohlsearch| does not work in scripts.
@@ -225,8 +163,15 @@ search count.
     Default: `''`
     Example:
 >
-    let g:searchhi_off_all_triggers = 'InsertEnter'
+    let g:searchhi_clear_all_autocmds = 'InsertEnter'
 <
+
+*g:searchhi_open_folds*
+    Whether folds should be automatically opened if they contain the current
+    search result.
+    `---`
+    Type: |Number|
+    Default: `1`
 
 *g:searchhi_visual_maps_enabled*
     Whether <Plug> mappings should be created for Visual mode functions.
@@ -243,51 +188,36 @@ search count.
 Standard <Plug> mappings that can replace their respective normal mode
 commands:
 
-    *<Plug>(searchhi-/)*
-    *<Plug>(searchhi-?)*
     *<Plug>(searchhi-n)*
     *<Plug>(searchhi-N)*
     *<Plug>(searchhi-star)*  -> <Plug>(searchhi-*)
     *<Plug>(searchhi-#)*
     *<Plug>(searchhi-gstar)* -> <Plug>(searchhi-g*)
     *<Plug>(searchhi-g#)*
-
-Alternative <Plug> mappings that can replace their respective normal mode
-commands:
-
-    *<Plug>(searchhi-n-stay)*
-        Should be used with the "keep cursor position" feature of
-        {vim-asterisk}{3} (i.e. if |g:asterisk#keeppos| = `1`).
-
-    *<Plug>(searchhi-N-stay)*
-        Like |<Plug>(searchhi-n-stay)|, but moves backwards.
+    *<Plug>(searchhi-gd)*
+    *<Plug>(searchhi-gD)*
 
 General use <Plug> mappings:
 
-    *<Plug>(searchhi-off-all)*
-        Clears all search highlighting.
+    *<Plug>(searchhi-clear-all)*
+        Clear all search highlighting.
 
 Low-level <Plug> mappings (can be used to integrate with other plugins):
 
+    *<Plug>(searchhi-listen)*
+        Start listening for any events (e.g. `CursorMoved`, `WinLeave`) that
+        might update the current search result. Should be used right before a
+        search is queried.
+
+    *<Plug>(searchhi-await)*
+        Waits for events that will start search highlighting. This includes
+        `CmdLineLeave`.
+
     *<Plug>(searchhi-update)*
-        Clears the old highlight, then highlights the one under the cursor.
+        If the cursor is over a search result, highlight it and call the
+        appropriate |searchhi-autocmds|.
 
-        Note: the cursor must be at the start position of the current search
-        result.
-
-    *<Plug>(searchhi-update-stay)*
-        Like |<Plug>(searchhi-update)|, but can be used if the cursor isn't at
-        the start position of the current search result.
-
-        Essentially, if the cursor is inside a search result (not necessarily
-        at the start), then the whole search result will be highlighted.
-
-        This was originally made to be compatible with "stay star" motions
-        from {vim-asterisk}{3}. This is called a "stay" motion because it
-        correctly handles the case where the cursor doesn't jump to the
-        position of the first search result.
-
-    *<Plug>(searchhi-off)*
+    *<Plug>(searchhi-clear)*
         Clears the highlight on the current search result, but not the
         highlights on the rest of them.
 
@@ -301,22 +231,20 @@ Low-level <Plug> mappings (can be used to integrate with other plugins):
 These are the same as the normal mode mappings, but they preserve the visual
 selection:
 
-    *<Plug>(searchhi-v-/)*
-    *<Plug>(searchhi-v-?)*
     *<Plug>(searchhi-v-n)*
     *<Plug>(searchhi-v-N)*
     *<Plug>(searchhi-v-star)*  -> <Plug>(searchhi-v-*)
     *<Plug>(searchhi-v-#)*
     *<Plug>(searchhi-v-gstar)* -> <Plug>(searchhi-v-g*)
     *<Plug>(searchhi-v-g#)*
+    *<Plug>(searchhi-v-gd)*
+    *<Plug>(searchhi-v-gD)*
 
-    *<Plug>(searchhi-v-n-stay)*
-    *<Plug>(searchhi-v-N-stay)*
+    *<Plug>(searchhi-v-clear-all)*
 
-    *<Plug>(searchhi-v-off-all)*
-
+    *<Plug>(searchhi-v-listen)*
+    *<Plug>(searchhi-v-await)*
     *<Plug>(searchhi-v-update)*
-    *<Plug>(searchhi-v-update-stay)*
-    *<Plug>(searchhi-v-off)*
+    *<Plug>(searchhi-v-clear)*
 
  vim:tw=78:sw=4:ft=help:norl:

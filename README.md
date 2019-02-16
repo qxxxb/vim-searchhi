@@ -6,8 +6,8 @@ results.
 ![Demo gif](https://raw.githubusercontent.com/qxxxb/vim-searchhi/assets/demo.gif)
 
 ## Note
-I highly recommend [vim-searchlight]. It does the same thing as this plugin,
-but without any mappings.
+I highly recommend [vim-searchlight]. It does almost the same things as this
+plugin, but without any mappings.
 
 ## Credits
 
@@ -30,71 +30,51 @@ basic implementation for highlighting the current search result.
 
 ## Quick start
 ```vim
-nmap / <Plug>(searchhi-/)
-nmap ? <Plug>(searchhi-?)
 nmap n <Plug>(searchhi-n)
 nmap N <Plug>(searchhi-N)
 nmap * <Plug>(searchhi-*)
-nmap # <Plug>(searchhi-#)
 nmap g* <Plug>(searchhi-g*)
+nmap # <Plug>(searchhi-#)
 nmap g# <Plug>(searchhi-g#)
-nmap <C-L> <Plug>(searchhi-off-all)
+nmap gd <Plug>(searchhi-gd)
+nmap gD <Plug>(searchhi-gD)
 
-vmap / <Plug>(searchhi-v-/)
-vmap ? <Plug>(searchhi-v-?)
 vmap n <Plug>(searchhi-v-n)
 vmap N <Plug>(searchhi-v-N)
 vmap * <Plug>(searchhi-v-*)
-vmap # <Plug>(searchhi-v-#)
 vmap g* <Plug>(searchhi-v-g*)
+vmap # <Plug>(searchhi-v-#)
 vmap g# <Plug>(searchhi-v-g#)
-vmap <C-L> <Plug>(searchhi-v-off-all)
+vmap gd <Plug>(searchhi-v-gd)
+vmap gD <Plug>(searchhi-v-gD)
+
+nmap <silent> <C-L> <Plug>(searchhi-clear-all)
+vmap <silent> <C-L> <Plug>(searchhi-v-clear-all)
 ```
 
 Integration with [vim-anzu]:
 ```vim
-let g:searchhi_autocmds_enabled = 1
+let g:searchhi_user_autocmds_enabled = 1
 augroup searchhi
-  autocmd!
-  autocmd User SearchHiOn AnzuUpdateSearchStatusOutput
-  autocmd User SearchHiOff echo ''
+    autocmd!
+    autocmd User SearchHiOn AnzuUpdateSearchStatusOutput
+    autocmd User SearchHiOff echo ''
 augroup END
 ```
 
 Integration with [vim-asterisk]:
 ```vim
-map * <Plug>(asterisk-*)<Plug>(searchhi-update)
-map # <Plug>(asterisk-#)<Plug>(searchhi-update)
-map g* <Plug>(asterisk-g*)<Plug>(searchhi-update)
-map g# <Plug>(asterisk-g#)<Plug>(searchhi-update)
-
-map z* <Plug>(asterisk-z*)<Plug>(searchhi-update-stay)
-map z# <Plug>(asterisk-z#)<Plug>(searchhi-update-stay)
-map gz* <Plug>(asterisk-gz*)<Plug>(searchhi-update-stay)
-map gz# <Plug>(asterisk-gz#)<Plug>(searchhi-update-stay)
-```
-
-If you use the "keep cursor position" feature of [vim-asterisk] (i.e.
-`let g:asterisk#keeppos = 1`), use this:
-```vim
-map * <Plug>(asterisk-*)<Plug>(searchhi-update-stay)
-map # <Plug>(asterisk-#)<Plug>(searchhi-update-stay)
-map g* <Plug>(asterisk-g*)<Plug>(searchhi-update-stay)
-map g# <Plug>(asterisk-g#)<Plug>(searchhi-update-stay)
-
-nmap n <Plug>(searchhi-n-stay)
-nmap N <Plug>(searchhi-N-stay)
-
-vmap n <Plug>(searchhi-v-n-stay)
-vmap N <Plug>(searchhi-v-N-stay)
+map * <Plug>(asterisk-z*)<Plug>(searchhi-update)<Plug>(searchhi-listen)
+map # <Plug>(asterisk-z#)<Plug>(searchhi-update)<Plug>(searchhi-listen)
+map g* <Plug>(asterisk-gz*)<Plug>(searchhi-update)<Plug>(searchhi-listen)
+map g# <Plug>(asterisk-gz#)<Plug>(searchhi-update)<Plug>(searchhi-listen)
 ```
 
 ## Customization
 
 ### Highlight style
 
-The current search result is highlighted with `CurrentSearch`.
-
+The current search result is highlighted with `CurrentSearch`. It can be changed like so:
 ```vim
 highlight CurrentSearch
     \ cterm=reverse,bold ctermfg=108 ctermbg=235
@@ -110,9 +90,8 @@ The autocommands `SearchHiOn` and `SearchHiOff` are executed when highlighting
 is turned on or off. Below is an example that blinks the cursor when search
 highlighting is turned on, making the cursor easier to find. [vim-anzu] is also
 used to echo the search count.
-
 ```vim
-let g:searchhi_autocmds_enabled = 1
+let g:searchhi_user_autocmds_enabled = 1
 
 augroup searchhi
     autocmd!
@@ -123,17 +102,17 @@ augroup searchhi
             \n-v:block-blinkwait20-blinkon20-blinkoff20 |
         \ AnzuUpdateSearchStatusOutput
 
-    autocmd User SearchHiOff set guicursor& | echo ''
+    autocmd User SearchHiOff
+        \ set guicursor& | echo ''
 augroup END
 ```
 
-### Off triggers
+### Autocmds for clearing highlights
 
 Highlighting for all search results can automatically be turned off with custom
 autocommands. Example:
-
 ```vim
-let g:searchhi_off_all_triggers = 'InsertEnter'
+let g:searchhi_clear_all_autocmds = 'InsertEnter'
 ```
 
 [vim-searchant]: https://github.com/timakro/vim-searchant
