@@ -9,60 +9,77 @@ set cpo&vim
 " `range` needs to be here so that the function won't get called for each line
 " when a visual selection is present
 function! searchhi#on(expect_visual, ...) range
+    " Search for `nohlsearch` in this script and see comments there
+    set hlsearch
+
     " We assume that `is_visual` is false by default, because calling
     " functions from visual mode will automatically exit visual mode
     "
     " Get optional arguments of function: `get(a:, nth arg, default)`
     let is_visual = get(a:, 1, 0)
 
-    " The line and column of the current search result (this is necessary for
-    " matching that specific search result)
-    let start_line = get(a:, 2, line('.'))
-    let start_column = get(a:, 3, col('.'))
-
     if !exists('g:searchhi_match')
         " Get the search pattern {{{
 
-        if exists('g:searchhi_match_pattern')
-            " This means that method is being called from one of the
-            " auto-toggle autocmds, where the highlight is hidden but the
-            " other information needed to produce the highlight is still
-            " present. The search pattern is one of these  (note that it
-            " already specifies the line and cursor)
-            let pattern = g:searchhi_match_pattern
+        " We need to make a pattern to match a specific search result of the
+        " previous search query (we use the variable `query`). We do this by
+        " specifying the line and column of that specific search result
+        " (`start_line` and `start_column`)
+
+        if exists('g:searchhi_match_line')
+            let start_line = g:searchhi_match_line
         else
-            let prev_search = @/
-            if s:is_very_magic(prev_search)
-                " Hack: yank the highlighted text to get the literal text. As of
-                " now I can't find a simple way to convert a very magic pattern to
-                " a magic pattern. This hack does seems to work well, nonetheless
-                "
-                " We also have to save and restore the cursor position because
-                " `ygn` will move the cursor to the search result if it's not
-                " already there
+            let start_line = line('.')
+        endif
 
-                " Use an arbitrary register (I chose 's')
-                let save_cursor = getcurpos()
-                let save_reg = getreg('s')
-                normal! "sygn
-                let prev_search = getreg('s')
-                call setreg('s', save_reg)
-                call setpos('.', save_cursor)
-            endif
+        if exists('g:searchhi_match_column')
+            let start_column = g:searchhi_match_column
+        else
+            let start_column = col('.')
+        endif
 
-            " The pattern is restricted to the line and column where the current
-            " search result begins, using (`/\%l`) and (`/\%c`) respectively. The
-            " previous search, which is surrounded by a non-capturing group
-            " (`/\%(`), is then used to finish the pattern
-            let pattern =
-                \ '\%' . start_line . 'l' .
-                \ '\%' . start_column . 'c' .
-                \ '\%(' . prev_search . '\)'
+        if exists('g:searchhi_match_query')
+            let query = g:searchhi_match_query
+        else
+            let query = @/
+        endif
 
-            " I think this already handles `smartcase` properly
-            if &ignorecase
-                let pattern .= '\c'
-            endif
+        let is_very_magic = s:is_very_magic(query)
+        if is_very_magic
+            " Hack: yank the highlighted text to get the literal text. As of
+            " now I can't find a simple way to convert a very magic pattern to
+            " a magic pattern. This hack does seems to work well, nonetheless
+            "
+            " We also have to save and restore the cursor position because
+            " `ygn` will move the cursor to the search result if it's not
+            " already there
+            "
+            " We also have to save the magic query so that it can be used to
+            " generate the appropriate literal text if we search again
+
+            let very_magic_query = query
+
+            " Use an arbitrary register (I chose 's')
+            let save_cursor = getcurpos()
+            let save_reg = getreg('s')
+            normal! "sygn
+            let query = getreg('s')
+            call setreg('s', save_reg)
+            call setpos('.', save_cursor)
+        endif
+
+        " The pattern is restricted to the line and column where the current
+        " search result begins, using (`/\%l`) and (`/\%c`) respectively. The
+        " previous search, which is surrounded by a non-capturing group
+        " (`/\%(`), is then used to finish the pattern
+        let pattern =
+            \ '\%' . start_line . 'l' .
+            \ '\%' . start_column . 'c' .
+            \ '\%(' . query . '\)'
+
+        " I think this already handles `smartcase` properly
+        if &ignorecase
+            let pattern .= '\c'
         endif
 
         " }}}
@@ -76,16 +93,22 @@ function! searchhi#on(expect_visual, ...) range
         let g:searchhi_match = matchadd("CurrentSearch", pattern)
         let g:searchhi_match_window = win_getid()
         let g:searchhi_match_buffer = bufnr('%')
-        let g:searchhi_match_pattern = pattern
+        let g:searchhi_match_line = start_line
+        let g:searchhi_match_column = start_column
+        if is_very_magic
+            let g:searchhi_match_query = very_magic_query
+        else
+            let g:searchhi_match_query = query
+        endif
 
         if g:searchhi_autocmds_enabled
-            doautocmd <nomodeline> User SearchHiOn
+            unsilent doautocmd <nomodeline> User SearchHiOn
         endif
 
         if g:searchhi_open_folds
             try
-                " Try to open a fold (this will exit visual mode and go to normal
-                " mode)
+                " Try to open a fold (this will exit visual mode and go to
+                " normal mode)
                 normal! zo
                 catch /^Vim\%((\a\+)\)\=:E490/
             endtry
@@ -93,19 +116,29 @@ function! searchhi#on(expect_visual, ...) range
             let is_visual = 0
         endif
 
-        augroup searchhi_auto_toggle
+        augroup searchhi_triggers
             autocmd!
 
-            if g:searchhi_auto_toggle
-                autocmd WinEnter,BufEnter * silent! call s:on_enter()
-                autocmd WinLeave,BufLeave * silent! call s:on_leave()
+            if g:searchhi_handle_windows
+                autocmd WinLeave,BufLeave * silent call s:on_leave()
+                autocmd WinEnter,BufEnter * silent call s:on_enter()
             endif
 
-            if g:searchhi_off_events != ''
-                " `autocmd!` to replace the autocmds above
-                execute 'autocmd! ' . g:searchhi_off_events .
-                    \ ' * let is_visual = s:is_visual() | '.
-                    \ 'silent! call searchhi#off(is_visual, is_visual)'
+            " `autocmd!` to replace the autocmds above
+
+            if g:searchhi_update_triggers_no_autocmd != ''
+                execute 'autocmd! ' . g:searchhi_update_triggers_no_autocmd .
+                    \ ' * silent call s:update_from_trigger(0)'
+            endif
+
+            if g:searchhi_update_triggers != ''
+                execute 'autocmd! ' . g:searchhi_update_triggers .
+                    \ ' * silent call s:update_from_trigger(1)'
+            endif
+
+            if g:searchhi_off_all_triggers != ''
+                execute 'autocmd! ' . g:searchhi_off_all_triggers .
+                    \ ' * silent call s:off_all()'
             endif
         augroup END
     endif
@@ -113,31 +146,16 @@ function! searchhi#on(expect_visual, ...) range
     call s:restore_visual_maybe(a:expect_visual, is_visual)
 endfunction
 
-function! s:on_enter()
-    if bufnr('%') == g:searchhi_match_buffer
-        " Switching windows when the buffers are the same should preserve the
-        " visual selection
-        "
-        " Since this function is called from an autocmd, we need to determine
-        " ourselves if we're in visual mode or not.
-        "
-        " The line and colum numbers must be provided so that highlighting
-        " will still work if the cursor is not in the same position.
-        let is_visual = s:is_visual()
-
-        call searchhi#on(is_visual, is_visual)
-    endif
-endfunction
-
-function! s:on_leave()
-    let is_visual = s:is_visual()
-    " the `1` is for `from_auto_toggle`
-    call searchhi#off(is_visual, is_visual, 1)
-endfunction
-
 function! searchhi#off(expect_visual, ...) range
     let is_visual = get(a:, 1, 0)
-    let from_auto_toggle = get(a:, 2, 0)
+
+    " Whether the highlight is only temporarily turned off. If true, then
+    " stuff needed to turn the highlight back on (without a new search)
+    " is retained. This 'stuff' includes:
+    " - autocmds (from auto-toggle)
+    " - options containing information on the current search result (e.g. the
+    "   query, line, column, buffer, and window)
+    let tmp = get(a:, 2, 0)
 
     if exists('g:searchhi_match')
         let original_window = win_getid()
@@ -151,7 +169,7 @@ function! searchhi#off(expect_visual, ...) range
             " Move to the tab and window where the highlight is
             "
             " This can be false if the other window was closed.  If this true,
-            " then it means the it exists and we have moved to it.
+            " then it means that it exists and we have moved to it.
             noautocmd let match_window_exists =
                 \ win_gotoid(g:searchhi_match_window)
         endif
@@ -174,28 +192,28 @@ function! searchhi#off(expect_visual, ...) range
             let is_visual = 0
         endif
 
-        if !from_auto_toggle
-            augroup searchhi_auto_toggle
-                autocmd!
-            augroup END
+        if g:searchhi_autocmds_enabled
+            unsilent doautocmd <nomodeline> User SearchHiOff
+        endif
+    endif
 
+    if !tmp
+        " Clear everything
+
+        augroup searchhi_triggers
+            autocmd!
+        augroup END
+
+        " If one of them exists, they all exist
+        let all_exist = exists('g:searchhi_match_window')
+
+        if all_exist
             unlet g:searchhi_match_window
             unlet g:searchhi_match_buffer
-            unlet g:searchhi_match_pattern
+            unlet g:searchhi_match_query
+            unlet g:searchhi_match_line
+            unlet g:searchhi_match_column
         endif
-
-        if g:searchhi_autocmds_enabled
-            doautocmd <nomodeline> User SearchHiOff
-        endif
-    elseif !exists('g:searchhi_match') &&
-         \ exists('g:searchhi_match_pattern') &&
-         \ !from_auto_toggle
-        " This intended situation for this to be called is:
-        "     - Searches are highlighted
-        "     - Switch to another window, buffer, or tab
-        "     - Start are new search (`/`) or hit `n` or something that will
-        "       call `searchhi#update`
-        unlet g:searchhi_match_pattern
     endif
 
     call s:restore_visual_maybe(a:expect_visual, is_visual)
@@ -203,8 +221,9 @@ endfunction
 
 function! searchhi#update(expect_visual, ...) range
     let is_visual = get(a:, 1, 0)
+    let tmp = get(a:, 2, 0)
 
-    call searchhi#off(a:expect_visual, is_visual)
+    call searchhi#off(a:expect_visual, is_visual, tmp)
 
     " The last function just fulfilled `a:expect_visual`, so we should update
     " `is_visual`
@@ -216,6 +235,62 @@ function! searchhi#update(expect_visual, ...) range
     " `searchhi#on`) that will call `s:restore_visual_maybe`, we don't need to
     " call it here
 endfunction
+
+" Cursor stay functions {{{
+
+function! searchhi#on_stay(expect_visual, ...) range
+    " This function should be called if the cursor might not be at the start
+    " position of the current search result
+    "
+    " Essentially, if the cursor is inside a search result (not necessarily at
+    " the start), then the whole search result will be highlighted
+    "
+    " An example when this would happen is after a 'stay search' was used. A
+    " 'stay search' is basically a search where the cursor does not jump to
+    " the position of the first search result. However, because the highlight
+    " for the current search result works by defining the line and column
+    " where the start of the highlight match must occur, we now need to find
+    " that start position separately
+    "
+    " Another example when this would happen is when
+    " `g:searchhi_update_tmp_events = 'CursorMoved'` and this function is
+    " when the cursor moves
+
+    let is_visual = get(a:, 1, 0)
+
+    " 'b' -> Search backwards
+    " 'c' -> Accept potential match at cursor
+    " 'n' -> Don't move cursor
+    " 'e' -> Get the position at the end of the match
+    " 'W' -> Don not wrap to end of file
+    "
+    " If not found, then both are 0
+    "
+    " If inside or behind a search result, `end_line` and `end_column` will
+    " actually match the search result BEFORE the one that's under the cursor.
+    " This is because we don't use the 'c' flag (accept potential at cursor)
+    " for that search
+    let [end_line, end_column] = searchpos(@/, 'bneW')
+    let [start_line, start_column] = searchpos(@/, 'bcnW')
+
+    if start_line > end_line || start_column > end_column
+        " This means that the cursor is currently inside a match
+        let g:searchhi_match_line = start_line
+        let g:searchhi_match_column = start_column
+        call searchhi#on(a:expect_visual, is_visual)
+    endif
+endfunction
+
+function! searchhi#update_stay(expect_visual, ...) range
+    let is_visual = get(a:, 1, 0)
+    let tmp = get(a:, 2, 0)
+
+    call searchhi#off(a:expect_visual, is_visual, tmp)
+    let is_visual = a:expect_visual
+    call searchhi#on_stay(a:expect_visual, is_visual)
+endfunction
+
+" }}}
 
 " Functions for `/` {{{
 
@@ -254,6 +329,8 @@ function! searchhi#post_search(expect_visual, ...) range
 endfunction
 
 function! searchhi#pre_search(expect_visual, ...) range
+    set hlsearch
+
     let is_visual = get(a:, 1, 0)
 
     call searchhi#off(a:expect_visual, is_visual)
@@ -272,44 +349,59 @@ endfunction
 
 " }}}
 
-" Functions for 'stay search' motions from `vim-asterisk` {{{
+" Functions for `g:searchhi_handle_windows = 1` {{{
 
-function! searchhi#on_stay(direction, expect_visual, ...) range
-    " This function should be called after a 'stay search' was used. A 'stay
-    " search' is basically a search where the cursor does not jump to the
-    " position of the first search result. However, because the highlight for
-    " the current search result works by defining the line and column where
-    " the start of the highlight match must occur, we now need to find that
-    " start position separately
+function! s:on_leave()
+    let is_visual = s:is_visual()
 
-    " If the variable `direction` equals 'b', then the search is backwards. If
-    " it's empty, then the search is forwards
+    " We need to turn off autocmds before calling `searchhi#off` so that
+    " autocmds that echo things out won't cause a prompt to appear. For
+    " example, if the user tries to open FZF while search highlighting is on.
+    "
+    " Note: this might have unintended side effects, depending on what the
+    " users' autocmds are
 
-    let is_visual = get(a:, 1, 0)
+    let orig = g:searchhi_autocmds_enabled
+    let g:searchhi_autocmds_enabled = 0
 
-    if s:in_word()
-        " If we started in a word, then we just go to the beginning of the
-        " word by searching backwards
-        let direction = 'b'
-    else
-        let direction = a:direction
-    endif
+    call searchhi#off(is_visual, is_visual, 1)
 
-    " Search in direction (`direction`), accept potential match at cursor
-    " position (`'c'`), and do not move the cursor (`'n'`)
-    let flags = direction . 'cn'
-    " `@/` contains the previous search
-    let [start_line, start_column] = searchpos(@/, flags)
-
-    call searchhi#on(a:expect_visual, is_visual, start_line, start_column)
+    let g:searchhi_autocmds_enabled = orig
 endfunction
 
-function! searchhi#update_stay(direction, expect_visual, ...) range
-    let is_visual = get(a:, 1, 0)
+function! s:on_enter()
+    let is_visual = s:is_visual()
+    call searchhi#on_stay(is_visual, is_visual)
+endfunction
 
-    call searchhi#off(a:expect_visual, is_visual)
-    let is_visual = a:expect_visual
-    call searchhi#on_stay(a:direction, a:expect_visual, is_visual)
+function! s:update_from_trigger(use_autocmds)
+    let is_visual = s:is_visual()
+
+    let orig = g:searchhi_autocmds_enabled
+    let g:searchhi_autocmds_enabled = a:use_autocmds
+
+    " We use `update_stay` instead of `update()` because we can't guarantee
+    " that the cursor will be at the start of the search result
+    call searchhi#update_stay(is_visual, is_visual, 1)
+
+    let g:searchhi_autocmds_enabled = orig
+
+    " This is an attempt to fix the issue where echos from `SearchHiOn` aren't
+    " cleared from `g:searchhi_update_triggers_no_autocmd`
+    if a:use_autocmds && !exists('g:searchhi_match')
+        unsilent doautocmd <nomodeline> User SearchHiOff
+    endif
+endfunction
+
+function! s:off_all()
+    let is_visual = s:is_visual()
+    call searchhi#off(is_visual, is_visual)
+
+    " Hack: because calling `:nohlsearch` will not work (see help page), we
+    " completely turn off the option. As a consequence, we have to turn it
+    " back on if we want to search again. Hopefully there are no side-effects
+    " from directly setting the option
+    set nohlsearch
 endfunction
 
 " }}}
@@ -329,12 +421,6 @@ function! s:restore_visual_maybe(expect_visual, is_visual)
         " completeness here it is. This just returns to normal mode
         normal ''
     endif
-endfunction
-
-function! s:in_word()
-    " Return whether the character under the cursor (found by using `/\%c`) is
-    " over a word character (`/\w`). `=~` is 'if the regexp matches'
-    return getline('.') =~ '\%' . col('.') . 'c\w'
 endfunction
 
 function! s:is_visual()

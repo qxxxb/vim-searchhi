@@ -14,12 +14,17 @@ basic implementation for highlighting the current search result.
 
 - Smooth integration with standard search as well as other search-enhancing
   plugins (e.g. [vim-anzu], [vim-asterisk]).
+
 - Behaves appropriately in Visual mode.
-- Highlighting is toggled predictably when switching buffers and windows.
-- Autocommands are provided and executed when highlighting is turned on and off.
+
+- Highlighting is updated predictably when the cursor is moved, as well as
+  when switching buffers and windows. It can also automatically be turned off
+  with custom autocommands.
+
+- User autocommands are provided and executed when highlighting is turned on
+  and off.
 
 ## Quick start
-
 ```vim
 nmap / <Plug>(searchhi-/)
 nmap ? <Plug>(searchhi-?)
@@ -43,51 +48,41 @@ vmap <silent> <C-L> <Plug>(searchhi-v-off-all)
 ```
 
 Integration with [vim-anzu]:
-
 ```vim
 let g:searchhi_autocmds_enabled = 1
 augroup searchhi
   autocmd!
   autocmd User SearchHiOn AnzuUpdateSearchStatusOutput
-  autocmd User SearchHiOff AnzuClearSearchStatus | echo ''
+  autocmd User SearchHiOff echo ''
 augroup END
 ```
 
 Integration with [vim-asterisk]:
-
 ```vim
-nmap * <Plug>(asterisk-*)<Plug>(searchhi-update)
-nmap # <Plug>(asterisk-#)<Plug>(searchhi-update)
-nmap g* <Plug>(asterisk-g*)<Plug>(searchhi-update)
-nmap g# <Plug>(asterisk-g#)<Plug>(searchhi-update)
+map * <Plug>(asterisk-*)<Plug>(searchhi-update)
+map # <Plug>(asterisk-#)<Plug>(searchhi-update)
+map g* <Plug>(asterisk-g*)<Plug>(searchhi-update)
+map g# <Plug>(asterisk-g#)<Plug>(searchhi-update)
 
-nmap z* <Plug>(asterisk-z*)<Plug>(searchhi-update-stay-forward)
-nmap z# <Plug>(asterisk-z#)<Plug>(searchhi-update-stay-backward)
-nmap gz* <Plug>(asterisk-gz*)<Plug>(searchhi-update-stay-forward)
-nmap gz# <Plug>(asterisk-gz#)<Plug>(searchhi-update-stay-backward)
-
-" These do not use the visual variant (`searchhi-v-update`) because these
-" vim-asterisk commands only use the selected text as the search term, so there
-" is no need to preserve the visual selection
-vmap * <Plug>(asterisk-*)<Plug>(searchhi-update)
-vmap # <Plug>(asterisk-#)<Plug>(searchhi-update)
-vmap g* <Plug>(asterisk-g*)<Plug>(searchhi-update)
-vmap g# <Plug>(asterisk-g#)<Plug>(searchhi-update)
-
-" These all use the backward variant because the cursor is always at or in
-" front of the start of the visual selection, so we need to search backwards to
-" get to the start position
-vmap z* <Plug>(asterisk-z*)<Plug>(searchhi-update-stay-backward)
-vmap z# <Plug>(asterisk-z#)<Plug>(searchhi-update-stay-backward)
-vmap gz* <Plug>(asterisk-gz*)<Plug>(searchhi-update-stay-backward)
-vmap gz# <Plug>(asterisk-gz#)<Plug>(searchhi-update-stay-backward)
+map z* <Plug>(asterisk-z*)<Plug>(searchhi-update-stay)
+map z# <Plug>(asterisk-z#)<Plug>(searchhi-update-stay)
+map gz* <Plug>(asterisk-gz*)<Plug>(searchhi-update-stay)
+map gz# <Plug>(asterisk-gz#)<Plug>(searchhi-update-stay)
 ```
 
 If you use the "keep cursor position" feature of [vim-asterisk] (i.e.
-`let g:asterisk#keeppos = 1`), then also do this:
-
+`let g:asterisk#keeppos = 1`), use this:
 ```vim
-let g:searchhi_asterisk#keeppos = 1
+map * <Plug>(asterisk-*)<Plug>(searchhi-update-stay)
+map # <Plug>(asterisk-#)<Plug>(searchhi-update-stay)
+map g* <Plug>(asterisk-g*)<Plug>(searchhi-update-stay)
+map g# <Plug>(asterisk-g#)<Plug>(searchhi-update-stay)
+
+nmap n <Plug>(searchhi-n-stay)
+nmap N <Plug>(searchhi-N-stay)
+
+vmap n <Plug>(searchhi-v-n-stay)
+vmap N <Plug>(searchhi-v-N-stay)
 ```
 
 ## Customization
@@ -124,17 +119,17 @@ augroup searchhi
             \n-v:block-blinkwait20-blinkon20-blinkoff20 |
         \ AnzuUpdateSearchStatusOutput
 
-    autocmd User SearchHiOff set guicursor& | AnzuClearSearchStatus | echo ''
+    autocmd User SearchHiOff set guicursor& | echo ''
 augroup END
 ```
 
-### Off events
+### Off triggers
 
-Highlighting for the current search result can automatically be turned off with
-custom autocommands. Example:
+Highlighting for all search results can automatically be turned off with custom
+autocommands. Example:
 
 ```vim
-let g:searchhi_off_events = 'CursorMoved,InsertEnter'
+let g:searchhi_off_all_triggers = 'InsertEnter'
 ```
 
 [vim-searchant]: https://github.com/timakro/vim-searchant
