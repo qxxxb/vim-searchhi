@@ -229,7 +229,6 @@ function! searchhi#listen_cmdline_leave()
             call searchhi#update()
 
             if exists('g:searchhi_force_ignorecase')
-                unsilent echom 'cmdline_enter'
                 unlet g:searchhi_force_ignorecase
             endif
         endif
@@ -241,7 +240,6 @@ function! searchhi#listen_cmdline_enter()
         call searchhi#clear()
 
         if exists('g:searchhi_force_ignorecase')
-            unsilent echom 'cmdline_enter'
             unlet g:searchhi_force_ignorecase
         endif
     endif
