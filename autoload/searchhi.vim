@@ -41,6 +41,9 @@ function! searchhi#listen(...) range
 
             execute 'autocmd! ' . g:searchhi_clear_all_autocmds .
                 \ ' * silent call searchhi#clear_all()'
+
+            execute 'autocmd! ' . g:searchhi_update_all_autocmds .
+                \ ' * silent call searchhi#update_all()'
         augroup END
     endif
 
@@ -305,6 +308,14 @@ function! searchhi#await_cmdline_leave()
     else
         call searchhi#listen_cmdline_leave()
     endif
+endfunction
+
+function! searchhi#update_all()
+    if !&hlsearch
+        set hlsearch
+    endif
+
+    call searchhi#update()
 endfunction
 
 " }}}

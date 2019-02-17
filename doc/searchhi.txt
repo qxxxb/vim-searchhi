@@ -175,6 +175,21 @@ search count.
     let g:searchhi_clear_all_autocmds = 'InsertEnter'
 <
 
+*g:searchhi_update_all_autocmds*
+    |autocmd-events| separated by commas (no spaces) that update highlighting
+    for all search results.
+
+    Note: This uses a hack that runs `set hlsearch`, because using the command
+    |nohlsearch| does not work in scripts.
+
+    `---`
+    Type: |String|
+    Default: `''`
+    Example:
+>
+    let g:searchhi_update_all_autocmds = 'InsertLeave'
+<
+
 *g:searchhi_open_folds*
     Whether folds should be automatically opened if they contain the current
     search result.

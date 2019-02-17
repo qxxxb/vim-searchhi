@@ -11,6 +11,10 @@ if !exists('g:searchhi_clear_all_autocmds')
     let g:searchhi_clear_all_autocmds = ''
 endif
 
+if !exists('g:searchhi_update_all_autocmds')
+    let g:searchhi_update_all_autocmds = ''
+endif
+
 if !exists('g:searchhi_open_folds')
     let g:searchhi_open_folds = 1
 endif

@@ -116,12 +116,13 @@ augroup searchhi
 augroup END
 ```
 
-### Autocmds for clearing highlights
+### Autocmds for toggle search highlighting
 
-Highlighting for all search results can automatically be turned off with custom
-autocommands. Example:
+Highlighting for all search results can be toggled with custom autocommands.
+Example:
 ```vim
 let g:searchhi_clear_all_autocmds = 'InsertEnter'
+let g:searchhi_update_all_autocmds = 'InsertLeave'
 ```
 
 [vim-searchant]: https://github.com/timakro/vim-searchant
