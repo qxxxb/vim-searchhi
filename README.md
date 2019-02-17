@@ -55,12 +55,12 @@ vmap <silent> <C-L> <Plug>(searchhi-v-clear-all)
 Integration with [vim-anzu]:
 ```vim
 let g:searchhi_user_autocmds_enabled = 1
+let g:searchhi_redraw_before_on = 1
+
 augroup searchhi
     autocmd!
 
-    " The redraw fixes an issue with the search status immediately being
-    " cleared when the viewport scrolls
-    autocmd User SearchHiOn redraw | AnzuUpdateSearchStatusOutput
+    autocmd User SearchHiOn AnzuUpdateSearchStatusOutput
 
     autocmd User SearchHiOff echo g:anzu_no_match_word
 augroup END
@@ -101,6 +101,7 @@ highlighting is turned on, making the cursor easier to find. [vim-anzu] is also
 used to echo the search count.
 ```vim
 let g:searchhi_user_autocmds_enabled = 1
+let g:searchhi_redraw_before_on = 1
 
 augroup searchhi
     autocmd!
@@ -109,7 +110,7 @@ augroup searchhi
         \ set guicursor=
             \c-sm:block,i-ci-ve:ver25,r-cr-o:hor20,
             \n-v:block-blinkwait20-blinkon20-blinkoff20 |
-        \ redraw | AnzuUpdateSearchStatusOutput
+        \ AnzuUpdateSearchStatusOutput
 
     autocmd User SearchHiOff set guicursor& | echo g:anzu_no_match_word
 augroup END

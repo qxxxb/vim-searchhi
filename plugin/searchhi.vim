@@ -23,6 +23,14 @@ if !exists('g:searchhi_search_abort_time')
     let g:searchhi_search_abort_time = 25
 endif
 
+if !exists('g:searchhi_search_complete_time')
+    let g:searchhi_search_complete_time = 25
+endif
+
+if !exists('g:searchhi_redraw_before_on')
+    let g:searchhi_redraw_before_on = 0
+endif
+
 " Setting it to `Incsearch` works out surprisingly nicely
 highlight default link CurrentSearch Incsearch
 

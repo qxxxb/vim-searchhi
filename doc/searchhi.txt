@@ -84,12 +84,12 @@ Author: Tim Schumacher <tim@timakro.de>
 Integration with {vim-anzu}{2}:
 >
     let g:searchhi_user_autocmds_enabled = 1
+    let g:searchhi_redraw_before_on = 1
+
     augroup searchhi
         autocmd!
 
-        " The redraw fixes an issue with the search status immediately being
-        " cleared when the viewport scrolls
-        autocmd User SearchHiOn redraw | AnzuUpdateSearchStatusOutput
+        autocmd User SearchHiOn AnzuUpdateSearchStatusOutput
 
         autocmd User SearchHiOff echo g:anzu_no_match_word
     augroup END
@@ -136,6 +136,7 @@ on, making the cursor easier to find. {vim-anzu}{2} is also used to echo the
 search count.
 >
     let g:searchhi_user_autocmds_enabled = 1
+    let g:searchhi_redraw_before_on = 1
 
     augroup searchhi
         autocmd!
@@ -144,7 +145,7 @@ search count.
             \ set guicursor=
                 \c-sm:block,i-ci-ve:ver25,r-cr-o:hor20,
                 \n-v:block-blinkwait20-blinkon20-blinkoff20 |
-            \ redraw | AnzuUpdateSearchStatusOutput
+            \ AnzuUpdateSearchStatusOutput
 
         autocmd User SearchHiOff set guicursor& | echo g:anzu_no_match_word
     augroup END
@@ -183,6 +184,31 @@ search count.
 
 *g:searchhi_visual_maps_enabled*
     Whether <Plug> mappings should be created for Visual mode functions.
+    `---`
+    Type: |Number|
+    Default: `1`
+
+*g:searchhi_search_abort_time*
+    Time in milliseconds before updating the search highlight when the search
+    is aborted. This exists so that the cursor position can be restored and
+    dealt with properly after the search is aborted.
+    `---`
+    Type: |Number|
+    Default: `25`
+
+*g:searchhi_search_complete_time*
+    Time in milliseconds before executing |searchhi-autocmds| after the search
+    query is submitted. This exists due to issues with |echo| messages from
+    the autocmds immediately being overwritten.
+    `---`
+    Type: |Number|
+    Default: `25`
+
+*g:searchhi_redraw_before_on*
+    Whether the screen should be redrawn before |SearchHiOn| is executed. This
+    fixes several specific cases when |echo| messages from |searchhi-autocmds|
+    are immediately overwritten, such as when the viewport scrolls when
+    jumping to the next match.
     `---`
     Type: |Number|
     Default: `1`

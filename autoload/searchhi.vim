@@ -110,6 +110,10 @@ function! searchhi#update(...) range
             let g:searchhi_match_window = win_getid()
 
             if g:searchhi_user_autocmds_enabled
+                if g:searchhi_redraw_before_on
+                    redraw
+                endif
+
                 unsilent doautocmd <nomodeline> User SearchHiOn
             endif
 
@@ -214,6 +218,22 @@ function! searchhi#search_abort_handler(timer)
     unlet g:searchhi_search_abort_timer
 endfunction
 
+function! searchhi#search_complete_handler(timer)
+    " -1 means do nothing
+    if g:searchhi_search_complete_action == 1
+        if g:searchhi_user_autocmds_enabled
+            unsilent doautocmd <nomodeline> User SearchHiOn
+        endif
+    else
+        if g:searchhi_user_autocmds_enabled == 0
+            unsilent doautocmd <nomodeline> User SearchHiOff
+        endif
+    endif
+
+    unlet g:searchhi_search_complete_action
+    unlet g:searchhi_search_complete_timer
+endfunction
+
 function! searchhi#listen_cmdline_leave()
     if getcmdtype() == '/' || getcmdtype() == '?'
         if v:event.abort
@@ -226,7 +246,30 @@ function! searchhi#listen_cmdline_leave()
             " The cursor is actually moved one column past the end of the search
             " result when this function is called, so we have to move it back
             noautocmd call cursor(line('.'), col('.') - 1)
+
+            let orig_autocmd = g:searchhi_user_autocmds_enabled
+            let g:searchhi_user_autocmds_enabled = 0
+
+            let orig_on = exists('g:searchhi_match')
+
             call searchhi#update()
+
+            let new_on = exists('g:searchhi_match')
+            if orig_on == new_on
+                let g:searchhi_search_complete_action = -1
+            elseif orig_on && !new_on
+                let g:searchhi_search_complete_action = 0
+            elseif !orig_on && new_on
+                let g:searchhi_search_complete_action = 1
+            endif
+
+            let g:searchhi_search_complete_timer =
+                \ timer_start(
+                    \ g:searchhi_search_complete_time,
+                    \ 'searchhi#search_complete_handler'
+                \ )
+
+            let g:searchhi_user_autocmds_enabled = orig_autocmd
 
             if exists('g:searchhi_force_ignorecase')
                 unlet g:searchhi_force_ignorecase
