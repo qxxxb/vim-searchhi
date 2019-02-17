@@ -45,8 +45,8 @@ Author: Tim Schumacher <tim@timakro.de>
     - Behaves appropriately in Visual mode.
 
     - Highlighting is updated predictably when the cursor is moved, as well as
-      when switching buffers and windows. It can also automatically be turned
-      off with custom autocommands.
+      when switching buffers and windows. It can also be toggled with custom
+      autocommands.
 
     - User autocommands are provided and executed when highlighting is turned
       on and off.
