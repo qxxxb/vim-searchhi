@@ -59,9 +59,7 @@ let g:searchhi_redraw_before_on = 1
 
 augroup searchhi
     autocmd!
-
     autocmd User SearchHiOn AnzuUpdateSearchStatusOutput
-
     autocmd User SearchHiOff echo g:anzu_no_match_word
 augroup END
 ```
