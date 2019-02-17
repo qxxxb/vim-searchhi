@@ -116,7 +116,7 @@ augroup searchhi
 augroup END
 ```
 
-### Autocmds for toggle search highlighting
+### Autocmds for toggling search highlighting
 
 Highlighting for all search results can be toggled with custom autocommands.
 Example:
