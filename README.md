@@ -5,10 +5,6 @@ results.
 
 ![Demo gif](https://raw.githubusercontent.com/qxxxb/vim-searchhi/assets/demo.gif)
 
-## Note
-I highly recommend [vim-searchlight]. It does almost the same things as this
-plugin, but without any mappings.
-
 ## Credits
 
 This plugin would not have existed without [vim-searchant]. It uses the same
@@ -27,6 +23,10 @@ basic implementation for highlighting the current search result.
 
 - User autocommands are provided and executed when highlighting is turned on
   and off.
+
+**Note**: This plugin relies on a lot of `<Plug>` mappings. An alternative
+plugin is [vim-searchlight], which has the same basic functionality but doesn't
+require any mappings.
 
 ## Quick start
 ```vim
