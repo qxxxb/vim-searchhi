@@ -15,6 +15,8 @@ basic implementation for highlighting the current search result.
 - Smooth integration with standard search as well as other search-enhancing
   plugins (e.g. [vim-anzu], [vim-asterisk]).
 
+- Uses a custom highlight group for the cursor when it's inside a search result.
+
 - Behaves appropriately in Visual mode.
 
 - Highlighting is updated predictably when the cursor is moved, as well as
@@ -81,15 +83,19 @@ map gz# <Plug>(asterisk-gz#)<Plug>(searchhi-update)
 
 ### Highlight style
 
-The current search result is highlighted with `CurrentSearch`. It can be changed like so:
+The current search result is highlighted with `CurrentSearch`, and the cursor
+when it's inside a search result is highlighted with `SeachCursor`. Example:
 ```vim
 highlight CurrentSearch
     \ cterm=reverse,bold ctermfg=108 ctermbg=235
     \ gui=reverse,bold guifg=#8ec07c guibg=#282828
+
+highlight link SearchCursor WarningMsg
 ```
 
 By default, `CurrentSearch` is linked to `Incsearch`, which works nicely if your
-`Incsearch` and `Search` highlight groups are distinguishable.
+`Incsearch` and `Search` highlight groups are visually distinguishable.
+`SearchCursor` is linked to `Normal` by default.
 
 ### Autocommands
 

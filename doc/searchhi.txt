@@ -42,6 +42,9 @@ Author: Tim Schumacher <tim@timakro.de>
     - Smooth integration with standard search as well as other
       search-enhancing plugins (e.g. {vim-anzu}{2}, {vim-asterisk}{3}).
 
+    - Uses a custom highlight group for the cursor when it's inside a search
+      result.
+
     - Behaves appropriately in Visual mode.
 
     - Highlighting is updated predictably when the cursor is moved, as well as
@@ -112,15 +115,26 @@ Integration with {vim-asterisk}{3}:
 ------------------------------------------------------------------------------
 4.1. Highlight                                            *searchhi-highlight*
 
-*hl-CurrentSearch* is used to highlight current search result. Example:
+*hl-CurrentSearch*
+    Current search result. The default value works nicely if |hl-Incsearch|
+    and |hl-Search| are visually distinguishable.
+    `---`
+    Default: `Incsearch`
+
+*hl-SearchCursor*
+    Cursor when it's inside a search result. This isn't used in the command
+    window, because the search pattern isn't updated there for some reason.
+    `---`
+    Default: `Normal`
+
+Example:
 >
     highlight CurrentSearch
         \ cterm=reverse,bold ctermfg=108 ctermbg=235
         \ gui=reverse,bold guifg=#8ec07c guibg=#282828
-<
 
-By default,|hl-CurrentSearch| is linked to |hl-Incsearch|, which works nicely
-if |hl-Incsearch| and |hl-Search| are distinguishable.
+    highlight link SearchCursor WarningMsg
+<
 
 ------------------------------------------------------------------------------
 4.2. Autocommands                                          *searchhi-autocmds*
@@ -187,6 +201,13 @@ search count.
 >
     let g:searchhi_update_all_autocmds = 'InsertLeave'
 <
+
+*g:searchhi_cursor*
+    Whether the cursor should be highlighted with |hl-SearchCursor| when it's
+    inside a search result.
+    `---`
+    Type: |Number|
+    Default: `1`
 
 *g:searchhi_open_folds*
     Whether folds should be automatically opened if they contain the current

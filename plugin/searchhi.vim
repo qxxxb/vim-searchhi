@@ -35,8 +35,14 @@ if !exists('g:searchhi_redraw_before_on')
     let g:searchhi_redraw_before_on = 0
 endif
 
+if !exists('g:searchhi_cursor')
+    let g:searchhi_cursor = 1
+end
+
 " Setting it to `Incsearch` works out surprisingly nicely
 highlight default link CurrentSearch Incsearch
+
+highlight default link SearchCursor Normal
 
 let g:searchhi_status = ''
 call searchhi#await()

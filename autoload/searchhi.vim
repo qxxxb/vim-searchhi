@@ -105,12 +105,16 @@ function! searchhi#update(...) range
                 let pattern .= '\c'
             endif
 
-            let g:searchhi_match = matchadd("CurrentSearch", pattern)
+            let g:searchhi_match = matchadd('CurrentSearch', pattern)
 
             let g:searchhi_match_query = query
             let g:searchhi_match_line = start_line
             let g:searchhi_match_column = start_column
             let g:searchhi_match_window = win_getid()
+
+            if g:searchhi_cursor && bufname('%') != '[Command Line]'
+                let g:searchhi_cursor_match = matchadd('SearchCursor', '\%#')
+            endif
 
             if g:searchhi_user_autocmds_enabled
                 if g:searchhi_redraw_before_on
@@ -176,6 +180,11 @@ function! searchhi#clear(...) range
         if same_window || match_window_exists
             " Remove the highlight
             call matchdelete(g:searchhi_match)
+
+            if g:searchhi_cursor && exists('g:searchhi_cursor_match')
+                call matchdelete(g:searchhi_cursor_match)
+                silent! unlet g:searchhi_cursor_match
+            endif
         endif
 
         if !same_window && match_window_exists
