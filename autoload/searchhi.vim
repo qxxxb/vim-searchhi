@@ -59,6 +59,13 @@ function! searchhi#update(...) range
         let search_query = query
     endif
 
+    if expect_visual
+        " We need to do this so the cursor is at the end of position of the
+        " visual selection
+        call s:restore_visual(expect_visual, is_visual)
+        let is_visual = expect_visual
+    endif
+
     let [end_line, end_column] = searchpos(search_query, 'bneW')
     let [start_line, start_column] = searchpos(search_query, 'bcnW')
 
@@ -73,11 +80,12 @@ function! searchhi#update(...) range
 
             if exists('g:searchhi_match')
                 " On -> On (different)
-                call searchhi#clear(expect_visual, is_visual)
-                let is_visual = expect_visual
+                call searchhi#clear(0, 0)
             else
                 " Off -> On
-                set hlsearch
+                if !&hlsearch
+                    set hlsearch
+                endif
             endif
 
             " The pattern is restricted to the line and column where the
@@ -115,15 +123,17 @@ function! searchhi#update(...) range
 
                 let is_visual = 0
             endif
-
         endif
     else
-        " Mkae Off -> Off as optimized as possible
+        " Make Off -> Off as optimized as possible
         if exists('g:searchhi_match')
             " On -> Off
-            call searchhi#clear(expect_visual, is_visual)
-            let is_visual = expect_visual
+            call searchhi#clear(0, 0)
         endif
+    endif
+
+    if g:searchhi_status != 'listen'
+        call searchhi#listen(0, 0)
     endif
 
     call s:restore_visual(expect_visual, is_visual)
@@ -195,25 +205,45 @@ endfunction
 
 " Autocmd functions {{{
 
-function! searchhi#await_cmdline_leave()
-    if getcmdtype() == '/' || getcmdtype() == '?'
-        call searchhi#listen()
-    endif
-
-    if exists('g:searchhi_force_ignorecase')
-        unlet g:searchhi_force_ignorecase
-    endif
+" Hack: if the search was aborted, wait a little bit before updating the
+" search highlight. It's done this way because `CmdlineEnter` does not give
+" the right cursor position, so we wait for it to get restored before updating
+" the search highlight.
+function! searchhi#search_abort_handler(timer)
+    cal searchhi#update()
+    unlet g:searchhi_search_abort_timer
 endfunction
 
 function! searchhi#listen_cmdline_leave()
     if getcmdtype() == '/' || getcmdtype() == '?'
-        call searchhi#update()
+        if v:event.abort
+            let g:searchhi_search_abort_timer =
+                \ timer_start(
+                    \ g:searchhi_search_abort_time,
+                    \ 'searchhi#search_abort_handler'
+                \ )
+        else
+            " The cursor is actually moved one column past the end of the search
+            " result when this function is called, so we have to move it back
+            noautocmd call cursor(line('.'), col('.') - 1)
+            call searchhi#update()
+
+            if exists('g:searchhi_force_ignorecase')
+                unsilent echom 'cmdline_enter'
+                unlet g:searchhi_force_ignorecase
+            endif
+        endif
     endif
 endfunction
 
 function! searchhi#listen_cmdline_enter()
     if getcmdtype() == '/' || getcmdtype() == '?'
         call searchhi#clear()
+
+        if exists('g:searchhi_force_ignorecase')
+            unsilent echom 'cmdline_enter'
+            unlet g:searchhi_force_ignorecase
+        endif
     endif
 endfunction
 
@@ -226,6 +256,14 @@ function! searchhi#listen_leave()
     call searchhi#clear()
 
     let g:searchhi_user_autocmds_enabled = orig
+endfunction
+
+function! searchhi#await_cmdline_leave()
+    if (getcmdtype() == '/' || getcmdtype() == '?') && v:event.abort
+        call searchhi#clear_all()
+    else
+        call searchhi#listen_cmdline_leave()
+    endif
 endfunction
 
 " }}}
@@ -247,12 +285,6 @@ function! s:restore_visual(expect_visual, is_visual)
     endif
 endfunction
 
-function! s:is_visual()
-    " `=~#` is if regexp matches (case sensitive)
-    " `mode(1)` returns the full name of the mode
-    return mode(1) =~# "[vV\<C-v>]"
-endfunction
-
 function! searchhi#force_ignorecase(...) range
     let expect_visual = get(a:, 1, s:is_visual())
     let is_visual = get(a:, 2, s:is_visual())
@@ -260,6 +292,12 @@ function! searchhi#force_ignorecase(...) range
     let g:searchhi_force_ignorecase = 1
 
     call s:restore_visual(expect_visual, is_visual)
+endfunction
+
+function! s:is_visual()
+    " `=~#` is if regexp matches (case sensitive)
+    " `mode(1)` returns the full name of the mode
+    return mode(1) =~# "[vV\<C-v>]"
 endfunction
 
 " }}}

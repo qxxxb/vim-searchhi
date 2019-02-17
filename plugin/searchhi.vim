@@ -19,6 +19,10 @@ if !exists('g:searchhi_visual_maps_enabled')
     let g:searchhi_visual_maps_enabled = 1
 endif
 
+if !exists('g:searchhi_search_abort_time')
+    let g:searchhi_search_abort_time = 25
+endif
+
 " Setting it to `Incsearch` works out surprisingly nicely
 highlight default link CurrentSearch Incsearch
 
@@ -40,36 +44,36 @@ noremap <silent> <Plug>(searchhi-clear)
 " Convenience mappings
 
 map <silent> <Plug>(searchhi-clear-all)
-    \ :nohlsearch<CR><Plug>(searchhi-clear)<Plug>(searchhi-await)
+    \ :<C-U>nohlsearch<CR><Plug>(searchhi-clear)<Plug>(searchhi-await)
 
 noremap <silent> <Plug>(searchhi-n)
-    \ :<C-U>call searchhi#listen(0, 0)<CR>n
+    \ n:<C-U>call searchhi#update(0, 0)<CR>
 
 noremap <silent> <Plug>(searchhi-N)
-    \ :<C-U>call searchhi#listen(0, 0)<CR>N
+    \ :<C-U>call searchhi#update(0, 0)<CR>N
 
 noremap <silent> <Plug>(searchhi-*)
-    \ :call searchhi#listen(0, 0)<CR>
+    \ :<C-U>call searchhi#update(0, 0)<CR>
      \:<C-U>call searchhi#force_ignorecase(0, 0)<CR>*
 
 noremap <silent> <Plug>(searchhi-g*)
-    \ :<C-U>call searchhi#listen(0, 0)<CR>
+    \ :<C-U>call searchhi#update(0, 0)<CR>
      \:<C-U>call searchhi#force_ignorecase(0, 0)<CR>g*
 
 noremap <silent> <Plug>(searchhi-#)
-    \ :call searchhi#listen(0, 0)<CR>
+    \ :<C-U>call searchhi#update(0, 0)<CR>
      \:<C-U>call searchhi#force_ignorecase(0, 0)<CR>#
 
 noremap <silent> <Plug>(searchhi-g#)
-    \ :<C-U>call searchhi#listen(0, 0)<CR>
+    \ :<C-U>call searchhi#update(0, 0)<CR>
      \:<C-U>call searchhi#force_ignorecase(0, 0)<CR>g#
 
 noremap <silent> <Plug>(searchhi-gd)
-    \ :<C-U>call searchhi#listen(0, 0)<CR>
+    \ :<C-U>call searchhi#update(0, 0)<CR>
      \:<C-U>call searchhi#force_ignorecase(0, 0)<CR>gd
 
 noremap <silent> <Plug>(searchhi-gD)
-    \ :<C-U>call searchhi#listen(0, 0)<CR>
+    \ :<C-U>call searchhi#update(0, 0)<CR>
      \:<C-U>call searchhi#force_ignorecase(0, 0)<CR>gD
 
 if g:searchhi_visual_maps_enabled
@@ -85,38 +89,36 @@ if g:searchhi_visual_maps_enabled
     noremap <silent> <Plug>(searchhi-v-update)
         \ :<C-U>call searchhi#update(1, 0)<CR>
 
-    noremap <silent> <Plug>(searchhi-v-clear-all)
-        \ :<C-U>call searchhi#clear(0, 0)<CR>
-         \:<C-U>nohlsearch<CR>
-         \:<C-U>call searchhi#await(1, 0)<CR>
+    map <silent> <Plug>(searchhi-v-clear-all)
+        \ :<C-U>nohlsearch<CR><Plug>(searchhi-clear)<Plug>(searchhi-v-await)
 
     noremap <silent> <Plug>(searchhi-v-n)
-        \ :<C-U>call searchhi#listen(1, 0)<CR>n
+        \ n:<C-U>call searchhi#update(1, 0)<CR>
 
     noremap <silent> <Plug>(searchhi-v-N)
-        \ :<C-U>call searchhi#listen(1, 0)<CR>N
+        \ :<C-U>call searchhi#update(1, 0)<CR>N
 
     noremap <silent> <Plug>(searchhi-v-*)
-        \ :<C-U>call searchhi#listen(0, 0)<CR>
+        \ :<C-U>call searchhi#update(0, 0)<CR>
          \:<C-U>call searchhi#force_ignorecase(1, 0)<CR>*
 
     noremap <silent> <Plug>(searchhi-v-g*)
-        \ :<C-U>call searchhi#listen(0, 0)<CR>
+        \ :<C-U>call searchhi#update(0, 0)<CR>
          \:<C-U>call searchhi#force_ignorecase(1, 0)<CR>g*
 
     noremap <silent> <Plug>(searchhi-v-#)
-        \ :<C-U>call searchhi#listen(0, 0)<CR>
+        \ :<C-U>call searchhi#update(0, 0)<CR>
          \:<C-U>call searchhi#force_ignorecase(1, 0)<CR>#
 
     noremap <silent> <Plug>(searchhi-v-g#)
-        \ :<C-U>call searchhi#listen(0, 0)<CR>
+        \ :<C-U>call searchhi#update(0, 0)<CR>
          \:<C-U>call searchhi#force_ignorecase(1, 0)<CR>g#
 
     noremap <silent> <Plug>(searchhi-v-gd)
-        \ :<C-U>call searchhi#listen(0, 0)<CR>
+        \ :<C-U>call searchhi#update(0, 0)<CR>
          \:<C-U>call searchhi#force_ignorecase(1, 0)<CR>gd
 
     noremap <silent> <Plug>(searchhi-v-gD)
-        \ :<C-U>call searchhi#listen(0, 0)<CR>
+        \ :<C-U>call searchhi#update(0, 0)<CR>
          \:<C-U>call searchhi#force_ignorecase(1, 0)<CR>gD
 endif

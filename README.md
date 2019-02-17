@@ -24,9 +24,9 @@ basic implementation for highlighting the current search result.
 - User autocommands are provided and executed when highlighting is turned on
   and off.
 
-**Note**: This plugin relies on a lot of `<Plug>` mappings. An alternative
-plugin is [vim-searchlight], which has the same basic functionality but doesn't
-require any mappings.
+**Note**: This plugin uses a lot of `<Plug>` mappings. An alternative plugin is
+[vim-searchlight], which has the same basic functionality but doesn't require
+any mappings.
 
 ## Quick start
 ```vim
@@ -66,12 +66,17 @@ augroup searchhi
 augroup END
 ```
 
-Integration with [vim-asterisk]:
+Example with [vim-asterisk]:
 ```vim
-map * <Plug>(asterisk-z*)<Plug>(searchhi-update)<Plug>(searchhi-listen)
-map # <Plug>(asterisk-z#)<Plug>(searchhi-update)<Plug>(searchhi-listen)
-map g* <Plug>(asterisk-gz*)<Plug>(searchhi-update)<Plug>(searchhi-listen)
-map g# <Plug>(asterisk-gz#)<Plug>(searchhi-update)<Plug>(searchhi-listen)
+map * <Plug>(asterisk-*)<Plug>(searchhi-update)
+map # <Plug>(asterisk-#)<Plug>(searchhi-update)
+map g* <Plug>(asterisk-g*)<Plug>(searchhi-update)
+map g# <Plug>(asterisk-g#)<Plug>(searchhi-update)
+
+map z* <Plug>(asterisk-z*)<Plug>(searchhi-update)
+map z# <Plug>(asterisk-z#)<Plug>(searchhi-update)
+map gz* <Plug>(asterisk-gz*)<Plug>(searchhi-update)
+map gz# <Plug>(asterisk-gz#)<Plug>(searchhi-update)
 ```
 
 ## Customization

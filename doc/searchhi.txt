@@ -97,10 +97,15 @@ Integration with {vim-anzu}{2}:
 
 Integration with {vim-asterisk}{3}:
 >
-    map * <Plug>(asterisk-z*)<Plug>(searchhi-update)<Plug>(searchhi-listen)
-    map # <Plug>(asterisk-z#)<Plug>(searchhi-update)<Plug>(searchhi-listen)
-    map g* <Plug>(asterisk-gz*)<Plug>(searchhi-update)<Plug>(searchhi-listen)
-    map g# <Plug>(asterisk-gz#)<Plug>(searchhi-update)<Plug>(searchhi-listen)
+    map * <Plug>(asterisk-*)<Plug>(searchhi-update)<Plug>(searchhi-listen)
+    map # <Plug>(asterisk-#)<Plug>(searchhi-update)<Plug>(searchhi-listen)
+    map g* <Plug>(asterisk-g*)<Plug>(searchhi-update)<Plug>(searchhi-listen)
+    map g# <Plug>(asterisk-g#)<Plug>(searchhi-update)<Plug>(searchhi-listen)
+
+    map z* <Plug>(asterisk-z*)<Plug>(searchhi-update)<Plug>(searchhi-listen)
+    map z# <Plug>(asterisk-z#)<Plug>(searchhi-update)<Plug>(searchhi-listen)
+    map gz* <Plug>(asterisk-gz*)<Plug>(searchhi-update)<Plug>(searchhi-listen)
+    map gz# <Plug>(asterisk-gz#)<Plug>(searchhi-update)<Plug>(searchhi-listen)
 <
 
 ==============================================================================
@@ -209,16 +214,17 @@ Low-level <Plug> mappings (can be used to integrate with other plugins):
 
     *<Plug>(searchhi-listen)*
         Start listening for any events (e.g. `CursorMoved`, `WinLeave`) that
-        might update the current search result. Should be used right before a
-        search is queried.
+        might update the current search result.
 
     *<Plug>(searchhi-await)*
-        Waits for events that will start search highlighting. This includes
-        `CmdLineLeave`.
+        Waits for events that will start search highlighting. This essentially
+        turns off |<Plug>(searchhi-listen)|, and should be called when search
+        highlighting is turned off.
 
     *<Plug>(searchhi-update)*
         If the cursor is over a search result, highlight it and call the
-        appropriate |searchhi-autocmds|.
+        appropriate |searchhi-autocmds|. This turns on
+        |<Plug>(searchhi-listen)| if it's not already on.
 
     *<Plug>(searchhi-clear)*
         Clears the highlight on the current search result, but not the
