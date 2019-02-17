@@ -86,8 +86,12 @@ Integration with {vim-anzu}{2}:
     let g:searchhi_user_autocmds_enabled = 1
     augroup searchhi
         autocmd!
-        autocmd User SearchHiOn AnzuUpdateSearchStatusOutput
-        autocmd User SearchHiOff echo ''
+
+        " The redraw fixes an issue with the search status immediately being
+        " cleared when the viewport scrolls
+        autocmd User SearchHiOn redraw | AnzuUpdateSearchStatusOutput
+
+        autocmd User SearchHiOff echo g:anzu_no_match_word
     augroup END
 <
 
@@ -135,10 +139,9 @@ search count.
             \ set guicursor=
                 \c-sm:block,i-ci-ve:ver25,r-cr-o:hor20,
                 \n-v:block-blinkwait20-blinkon20-blinkoff20 |
-            \ AnzuUpdateSearchStatusOutput
+            \ redraw | AnzuUpdateSearchStatusOutput
 
-        autocmd User SearchHiOff
-            \ set guicursor& | echo ''
+        autocmd User SearchHiOff set guicursor& | echo g:anzu_no_match_word
     augroup END
 <
 
