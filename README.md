@@ -84,7 +84,7 @@ map gz# <Plug>(asterisk-gz#)<Plug>(searchhi-update)
 ### Highlight style
 
 The current search result is highlighted with `CurrentSearch`, and the cursor
-when it's inside a search result is highlighted with `SeachCursor`. Example:
+when it's inside a search result is highlighted with `SearchCursor`. Example:
 ```vim
 highlight CurrentSearch
     \ cterm=reverse,bold ctermfg=108 ctermbg=235
