@@ -147,7 +147,9 @@ function! searchhi#update(...) range
 
             if g:searchhi_clear_all_asap
                 set nohlsearch
-                call searchhi#await(0, 0)
+                if !g:searchhi_update_all_asap
+                    call searchhi#await(0, 0)
+                endif
             endif
         endif
     endif

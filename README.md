@@ -129,11 +129,12 @@ let g:searchhi_clear_all_autocmds = 'InsertEnter'
 let g:searchhi_update_all_autocmds = 'InsertLeave'
 ```
 
-**Note**: Using `CursorMoved` in `g:searchhi_clear_all_autocmds` will cause
-issues. Do this instead:
+**Note**: Using `CursorMoved` for these will cause issues. The following
+commands will do the intended behavior:
 
 ```vim
 let g:searchhi_clear_all_asap = 1
+let g:searchhi_update_all_asap = 1
 ```
 
 [vim-searchant]: https://github.com/timakro/vim-searchant

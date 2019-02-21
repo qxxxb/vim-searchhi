@@ -178,7 +178,7 @@ search count.
 
     Note: Do not use `CursorMoved` for this. This causes issues because
     this plugin internally relies on `CursorMoved` . Instead, use
-    |g:searchhi_clear_asap|.
+    |g:searchhi_clear_all_asap|.
 
     Note: This uses a hack that runs `set nohlsearch`, because using the
     command |nohlsearch| does not work in scripts.
@@ -191,16 +191,13 @@ search count.
     let g:searchhi_clear_all_autocmds = 'InsertEnter'
 <
 
-*g:searchhi_clear_all_asap*
-    Whether all search highlight should be turned off as soon as the cursor is
-    no longer on a search result.
-    `---`
-    Type: |Number|
-    Default: `0`
-
 *g:searchhi_update_all_autocmds*
     |autocmd-events| separated by commas (no spaces) that update highlighting
     for all search results.
+
+    Note: Do not use `CursorMoved` for this. This causes issues because this
+    plugin internally relies on `CursorMoved` . Instead, use
+    |g:searchhi_update_all_asap|.
 
     Note: This uses a hack that runs `set hlsearch`, because using the command
     |nohlsearch| does not work in scripts.
@@ -212,6 +209,22 @@ search count.
 >
     let g:searchhi_update_all_autocmds = 'InsertLeave'
 <
+
+*g:searchhi_clear_all_asap*
+    Whether all search highlighting should be turned off as soon as the cursor
+    is no longer on a search result.
+    `---`
+    Type: |Number|
+    Default: `0`
+
+*g:searchhi_update_all_asap*
+    Whether all search highlighting should be turned on as soon as the cursor is
+    over a search result. This will only work if |g:searchhi_clear_all_asap|
+    is enabled.
+
+    `---`
+    Type: |Number|
+    Default: `0`
 
 *g:searchhi_cursor*
     Whether the cursor should be highlighted with |hl-SearchCursor| when it's
