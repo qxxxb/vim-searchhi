@@ -176,6 +176,10 @@ search count.
     |autocmd-events| separated by commas (no spaces) that will clear all
     search highlighting.
 
+    Note: Do not use `CursorMoved` for this. This causes issues because
+    this plugin internally relies on `CursorMoved` . Instead, use
+    |g:searchhi_clear_asap|.
+
     Note: This uses a hack that runs `set nohlsearch`, because using the
     command |nohlsearch| does not work in scripts.
 
@@ -186,6 +190,13 @@ search count.
 >
     let g:searchhi_clear_all_autocmds = 'InsertEnter'
 <
+
+*g:searchhi_clear_all_asap*
+    Whether all search highlight should be turned off as soon as the cursor is
+    no longer on a search result.
+    `---`
+    Type: |Number|
+    Default: `0`
 
 *g:searchhi_update_all_autocmds*
     |autocmd-events| separated by commas (no spaces) that update highlighting

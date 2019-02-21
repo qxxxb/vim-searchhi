@@ -54,6 +54,10 @@ function! searchhi#update(...) range
     let expect_visual = get(a:, 1, s:is_visual())
     let is_visual = get(a:, 2, s:is_visual())
 
+    if g:searchhi_status != 'listen'
+        call searchhi#listen(0, 0)
+    endif
+
     let query = @/
 
     if exists('g:searchhi_force_ignorecase')
@@ -140,11 +144,12 @@ function! searchhi#update(...) range
         if exists('g:searchhi_match')
             " On -> Off
             call searchhi#clear(0, 0)
-        endif
-    endif
 
-    if g:searchhi_status != 'listen'
-        call searchhi#listen(0, 0)
+            if g:searchhi_clear_all_asap
+                set nohlsearch
+                call searchhi#await(0, 0)
+            endif
+        endif
     endif
 
     call s:restore_visual(expect_visual, is_visual)

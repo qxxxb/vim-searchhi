@@ -129,6 +129,13 @@ let g:searchhi_clear_all_autocmds = 'InsertEnter'
 let g:searchhi_update_all_autocmds = 'InsertLeave'
 ```
 
+**Note**: Using `CursorMoved` in `g:searchhi_clear_all_autocmds` will cause
+issues. Do this instead:
+
+```vim
+let g:searchhi_clear_all_asap = 1
+```
+
 [vim-searchant]: https://github.com/timakro/vim-searchant
 [vim-anzu]: https://github.com/osyo-manga/vim-anzu
 [vim-asterisk]: https://github.com/haya14busa/vim-asterisk
