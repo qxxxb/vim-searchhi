@@ -19,10 +19,6 @@ if !exists('g:searchhi_clear_all_asap')
     let g:searchhi_clear_all_asap = 0
 endif
 
-if !exists('g:searchhi_update_all_asap')
-    let g:searchhi_update_all_asap = 0
-endif
-
 if !exists('g:searchhi_open_folds')
     let g:searchhi_open_folds = 1
 endif
@@ -69,6 +65,21 @@ noremap <silent> <Plug>(searchhi-clear)
 
 " Convenience mappings
 
+" These don't need to be used unless `g:searchhi_clear_all_asap` or
+" `g:searchhi_clear_all_autocmds` are used in a such a way that hlsearch is
+" still turned off when the next search is started {{{
+
+noremap <silent> <Plug>(searchhi-pre-search)
+    \ :<C-U>nohlsearch<CR>:<C-U>call searchhi#hlsearch(0, 0)<CR>
+
+noremap <Plug>(searchhi-/)
+    \ :<C-U>nohlsearch<CR>:<C-U>call searchhi#hlsearch(0, 0)<CR>/
+
+noremap <Plug>(searchhi-?)
+    \ :<C-U>nohlsearch<CR>:<C-U>call searchhi#hlsearch(0, 0)<CR>?
+
+" }}}
+
 map <silent> <Plug>(searchhi-clear-all)
     \ :<C-U>nohlsearch<CR><Plug>(searchhi-clear)<Plug>(searchhi-await)
 
@@ -114,6 +125,15 @@ if g:searchhi_visual_maps_enabled
 
     noremap <silent> <Plug>(searchhi-v-update)
         \ :<C-U>call searchhi#update(1, 0)<CR>
+
+    noremap <silent> <Plug>(searchhi-v-pre-search)
+        \ :<C-U>nohlsearch<CR>:<C-U>call searchhi#hlsearch(1, 0)<CR>
+
+    noremap <Plug>(searchhi-v-/)
+        \ :<C-U>nohlsearch<CR>:<C-U>call searchhi#hlsearch(1, 0)<CR>/
+
+    noremap <Plug>(searchhi-v-?)
+        \ :<C-U>nohlsearch<CR>:<C-U>call searchhi#hlsearch(1, 0)<CR>?
 
     map <silent> <Plug>(searchhi-v-clear-all)
         \ :<C-U>nohlsearch<CR><Plug>(searchhi-clear)<Plug>(searchhi-v-await)

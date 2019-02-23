@@ -177,11 +177,12 @@ search count.
     search highlighting.
 
     Note: Do not use `CursorMoved` for this. This causes issues because
-    this plugin internally relies on `CursorMoved` . Instead, use
+    this plugin internally relies on `CursorMoved`. Instead, use
     |g:searchhi_clear_all_asap|.
 
     Note: This uses a hack that runs `set nohlsearch`, because using the
-    command |nohlsearch| does not work in scripts.
+    command |nohlsearch| does not work in scripts. See |<Plug>(searchhi-/)| to
+    avoid side-effects.
 
     `---`
     Type: |String|
@@ -196,11 +197,7 @@ search count.
     for all search results.
 
     Note: Do not use `CursorMoved` for this. This causes issues because this
-    plugin internally relies on `CursorMoved` . Instead, use
-    |g:searchhi_update_all_asap|.
-
-    Note: This uses a hack that runs `set hlsearch`, because using the command
-    |nohlsearch| does not work in scripts.
+    plugin internally relies on `CursorMoved`.
 
     `---`
     Type: |String|
@@ -212,15 +209,11 @@ search count.
 
 *g:searchhi_clear_all_asap*
     Whether all search highlighting should be turned off as soon as the cursor
-    is no longer on a search result.
-    `---`
-    Type: |Number|
-    Default: `0`
+    moves.
 
-*g:searchhi_update_all_asap*
-    Whether all search highlighting should be turned on as soon as the cursor is
-    over a search result. This will only work if |g:searchhi_clear_all_asap|
-    is enabled.
+    Note: This uses a hack that runs `set nohlsearch`, because using the
+    command |nohlsearch| does not work in scripts. See |<Plug>(searchhi-/)| to
+    avoid side-effects.
 
     `---`
     Type: |Number|
@@ -294,6 +287,20 @@ General use <Plug> mappings:
     *<Plug>(searchhi-clear-all)*
         Clear all search highlighting.
 
+Other <Plug> mappings that can replace their respective normal mode commands:
+
+    *<Plug>(searchhi-/)*
+    *<Plug>(searchhi-?)*
+        These execute |<Plug>(searchhi-pre-search)| before searching. They
+        only need to be used for specific cases which involve the hack that
+        uses `set nohlsearch` to clear search highlighting. Here are two
+        example cases:
+
+            1. |g:searchhi_clear_all_asap| is `1`
+
+            2. |g:searchhi_clear_all_autocmds| is `InsertEnter` and
+               |g:searchhi_update_all_autocmds| does not contain `InsertLeave`
+
 Low-level <Plug> mappings (can be used to integrate with other plugins):
 
     *<Plug>(searchhi-listen)*
@@ -317,6 +324,10 @@ Low-level <Plug> mappings (can be used to integrate with other plugins):
         Note: this doesn't mean that the current search result will not be
         highlighted at all. Instead, it will be highlighted with the same
         highlight group as the other search results (i.e. |hl-Search|).
+
+    *<Plug>(searchhi-pre-search)*
+        Executes |:nohlsearch| and sets |hlsearch|. This ensures that
+        |incsearch| works properly.
 
 ------------------------------------------------------------------------------
 5.2. Visual mode                                         *searchhi-v-mappings*

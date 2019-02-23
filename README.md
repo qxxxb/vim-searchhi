@@ -129,12 +129,23 @@ let g:searchhi_clear_all_autocmds = 'InsertEnter'
 let g:searchhi_update_all_autocmds = 'InsertLeave'
 ```
 
-**Note**: Using `CursorMoved` for these will cause issues. The following
-commands will do the intended behavior:
+**Note**: Using `CursorMoved` for these will cause issues. If you want search
+highlighting to be cleared as soon as the cursor moves, use this:
 
 ```vim
 let g:searchhi_clear_all_asap = 1
-let g:searchhi_update_all_asap = 1
+```
+
+Because `g:searchhi_clear_all_asap` and `g:searchhi_clear_all_autocmds` both
+use a hack that directly sets `nohlsearch`, you may also need to use the
+following maps to make sure that `incsearch` works properly when searching:
+
+```vim
+nmap / <Plug>(searchhi-/)
+nmap ? <Plug>(searchhi-?)
+
+vmap / <Plug>(searchhi-v-/)
+vmap ? <Plug>(searchhi-v-?)
 ```
 
 [vim-searchant]: https://github.com/timakro/vim-searchant

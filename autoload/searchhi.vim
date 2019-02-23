@@ -58,6 +58,13 @@ function! searchhi#update(...) range
         call searchhi#listen(0, 0)
     endif
 
+    if expect_visual
+        " We need to do this so the cursor is at the end position of the
+        " visual selection
+        call s:restore_visual(expect_visual, is_visual)
+        let is_visual = expect_visual
+    endif
+
     let query = @/
 
     if exists('g:searchhi_force_ignorecase')
@@ -66,18 +73,10 @@ function! searchhi#update(...) range
         let search_query = query
     endif
 
-    if expect_visual
-        " We need to do this so the cursor is at the end of position of the
-        " visual selection
-        call s:restore_visual(expect_visual, is_visual)
-        let is_visual = expect_visual
-    endif
-
     let [end_line, end_column] = searchpos(search_query, 'bneW')
     let [start_line, start_column] = searchpos(search_query, 'bcnW')
 
     if start_line > end_line || start_column > end_column
-        " If one of them exists (`g:searchhi_match_column`), they all exist
         if !exists('g:searchhi_match') ||
          \ !exists('g:searchhi_match_column') ||
          \ g:searchhi_match_column != start_column ||
@@ -138,6 +137,18 @@ function! searchhi#update(...) range
 
                 let is_visual = 0
             endif
+        elseif g:searchhi_clear_all_asap &&
+             \ exists('g:searchhi_match') &&
+             \ exists('g:searchhi_match_column') &&
+             \ (
+                 \ g:searchhi_match_column != col('.') ||
+                 \ g:searchhi_match_line != line('.')
+             \ )
+                " Specific case of On -> On (same)
+
+                call searchhi#clear(0, 0)
+                set nohlsearch
+                call searchhi#await(0, 0)
         endif
     else
         " Make Off -> Off as optimized as possible
@@ -147,9 +158,7 @@ function! searchhi#update(...) range
 
             if g:searchhi_clear_all_asap
                 set nohlsearch
-                if !g:searchhi_update_all_asap
-                    call searchhi#await(0, 0)
-                endif
+                call searchhi#await(0, 0)
             endif
         endif
     endif
@@ -332,6 +341,17 @@ function! searchhi#update_all()
     endif
 
     call searchhi#update()
+endfunction
+
+function! searchhi#hlsearch(...)
+    let expect_visual = get(a:, 1, s:is_visual())
+    let is_visual = get(a:, 2, s:is_visual())
+
+    if !&hlsearch
+        set hlsearch
+    endif
+
+    call s:restore_visual(expect_visual, is_visual)
 endfunction
 
 " }}}
