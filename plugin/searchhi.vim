@@ -87,7 +87,7 @@ noremap <silent> <Plug>(searchhi-n)
     \ n:<C-U>call searchhi#update(0, 0)<CR>
 
 noremap <silent> <Plug>(searchhi-N)
-    \ :<C-U>call searchhi#update(0, 0)<CR>N
+    \ N:<C-U>call searchhi#update(0, 0)<CR>
 
 noremap <silent> <Plug>(searchhi-*)
     \ :<C-U>call searchhi#update(0, 0)<CR>
@@ -142,7 +142,7 @@ if g:searchhi_visual_maps_enabled
         \ n:<C-U>call searchhi#update(1, 0)<CR>
 
     noremap <silent> <Plug>(searchhi-v-N)
-        \ :<C-U>call searchhi#update(1, 0)<CR>N
+        \ N:<C-U>call searchhi#update(1, 0)<CR>
 
     noremap <silent> <Plug>(searchhi-v-*)
         \ :<C-U>call searchhi#update(0, 0)<CR>

@@ -113,6 +113,8 @@ function! searchhi#update(...) range
             let g:searchhi_match_query = query
             let g:searchhi_match_line = start_line
             let g:searchhi_match_column = start_column
+            let g:searchhi_match_cursor_line = line('.')
+            let g:searchhi_match_cursor_column = col('.')
             let g:searchhi_match_window = win_getid()
 
             if g:searchhi_cursor && bufname('%') != '[Command Line]'
@@ -139,10 +141,10 @@ function! searchhi#update(...) range
             endif
         elseif g:searchhi_clear_all_asap &&
              \ exists('g:searchhi_match') &&
-             \ exists('g:searchhi_match_column') &&
+             \ exists('g:searchhi_match_cursor_column') &&
              \ (
-                 \ g:searchhi_match_column != col('.') ||
-                 \ g:searchhi_match_line != line('.')
+                 \ g:searchhi_match_cursor_column != col('.') ||
+                 \ g:searchhi_match_cursor_line != line('.')
              \ )
                 " Specific case of On -> On (same)
 
@@ -220,6 +222,8 @@ function! searchhi#clear(...) range
         silent! unlet g:searchhi_match_query
         silent! unlet g:searchhi_match_line
         silent! unlet g:searchhi_match_column
+        silent! unlet g:searchhi_match_cursor_line
+        silent! unlet g:searchhi_match_cursor_column
         silent! unlet g:searchhi_match_window
     endif
 
