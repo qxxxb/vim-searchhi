@@ -268,7 +268,7 @@ endfunction
 
 function! searchhi#listen_cmdline_leave()
     if getcmdtype() == '/' || getcmdtype() == '?'
-        if v:event.abort
+        if has_key(v:event, 'abort') && v:event.abort
             let g:searchhi_search_abort_timer =
                 \ timer_start(
                     \ g:searchhi_search_abort_time,
@@ -332,7 +332,7 @@ function! searchhi#listen_leave()
 endfunction
 
 function! searchhi#await_cmdline_leave()
-    if (getcmdtype() == '/' || getcmdtype() == '?') && v:event.abort
+    if (getcmdtype() == '/' || getcmdtype() == '?') && has_key(v:event, 'abort') && v:event.abort
         call searchhi#clear_all()
     else
         call searchhi#listen_cmdline_leave()
