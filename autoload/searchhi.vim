@@ -251,6 +251,10 @@ function! searchhi#search_abort_handler(timer)
 endfunction
 
 function! searchhi#search_complete_handler(timer)
+    if !exists('g:searchhi_search_complete_action')
+        return
+    endif
+
     " -1 means do nothing
     if g:searchhi_search_complete_action == 1
         if g:searchhi_user_autocmds_enabled
