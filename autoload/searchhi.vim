@@ -73,8 +73,8 @@ function! searchhi#update(...) range
         let search_query = query
     endif
 
-    let [end_line, end_column] = searchpos(search_query, 'bneW')
-    let [start_line, start_column] = searchpos(search_query, 'bcnW')
+    silent! let [end_line, end_column] = searchpos(search_query, 'bneW')
+    silent! let [start_line, start_column] = searchpos(search_query, 'bcnW')
 
     if start_line > end_line || start_column > end_column
         if !exists('g:searchhi_match') ||
