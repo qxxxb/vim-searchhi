@@ -133,7 +133,7 @@ function! searchhi#update(...) range
                 try
                     " Try to open a fold (this will exit visual mode and go to
                     " normal mode)
-                    normal! zo
+                    normal! zO
                     catch /^Vim\%((\a\+)\)\=:E490/
                 endtry
 
