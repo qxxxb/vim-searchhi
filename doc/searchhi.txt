@@ -239,18 +239,10 @@ search count.
     Type: |Number|
     Default: `1`
 
-*g:searchhi_search_abort_time*
-    Time in milliseconds before updating the search highlight when the search
-    is aborted. This exists so that the cursor position can be restored and
-    dealt with properly after the search is aborted.
-    `---`
-    Type: |Number|
-    Default: `25`
-
-*g:searchhi_search_complete_time*
-    Time in milliseconds before executing |searchhi-autocmds| after the search
-    query is submitted. This exists due to issues with |echo| messages from
-    the autocmds immediately being overwritten.
+*g:searchhi_cmdline_leave_time*
+    Time in milliseconds before updating the search highlight after leaving
+    the command line. This exists so that the cursor position can be restored
+    and dealt with properly after leaving the command line.
     `---`
     Type: |Number|
     Default: `25`

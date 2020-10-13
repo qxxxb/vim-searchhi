@@ -27,12 +27,8 @@ if !exists('g:searchhi_visual_maps_enabled')
     let g:searchhi_visual_maps_enabled = 1
 endif
 
-if !exists('g:searchhi_search_abort_time')
-    let g:searchhi_search_abort_time = 25
-endif
-
-if !exists('g:searchhi_search_complete_time')
-    let g:searchhi_search_complete_time = 25
+if !exists('g:searchhi_cmdline_leave_time')
+    let g:searchhi_cmdline_leave_time = 25
 endif
 
 if !exists('g:searchhi_redraw_before_on')
