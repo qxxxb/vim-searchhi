@@ -253,7 +253,9 @@ function! searchhi#cmdline_leave_handler(timer)
         unlet g:searchhi_force_ignorecase
     endif
 
-    unlet g:searchhi_cmdline_leave_timer
+    if exists('g:searchhi_cmdline_leave_timer')
+        unlet g:searchhi_cmdline_leave_timer
+    endif
 endfunction
 
 function! searchhi#listen_cmdline_leave()
