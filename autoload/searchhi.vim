@@ -87,6 +87,13 @@ function! searchhi#update(...) range
             if exists('g:searchhi_match')
                 " On -> On (different)
                 call searchhi#clear(0, 0)
+
+                if g:searchhi_clear_all_asap
+                    set nohlsearch
+                    call searchhi#await(0, 0)
+                    call s:restore_visual(expect_visual, is_visual)
+                    return
+                endif
             else
                 " Off -> On
                 if !&hlsearch
