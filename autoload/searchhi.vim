@@ -244,6 +244,7 @@ function! searchhi#clear_all(...) range
     " Hack: Set the option directly
     set nohlsearch
     call searchhi#clear(expect_visual, is_visual)
+    call searchhi#await(0, 0)
 endfunction
 
 " Autocmd functions {{{
