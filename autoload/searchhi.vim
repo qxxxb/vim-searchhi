@@ -39,11 +39,15 @@ function! searchhi#listen(...) range
             autocmd CmdlineLeave * silent call searchhi#listen_cmdline_leave()
             autocmd CmdlineEnter * silent call searchhi#listen_cmdline_enter()
 
+            if g:searchhi_clear_all_autocmds
             execute 'autocmd! ' . g:searchhi_clear_all_autocmds .
                 \ ' * silent call searchhi#clear_all()'
+            endif
 
+            if g:searchhi_update_all_autocmds
             execute 'autocmd! ' . g:searchhi_update_all_autocmds .
                 \ ' * silent call searchhi#update_all()'
+            endif
         augroup END
     endif
 
